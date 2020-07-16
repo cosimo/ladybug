@@ -1,12 +1,22 @@
 function love.load()
     windowWidth, windowHeight = 192, 240
-    
+
+    -- game state management
+    gs = require "lib.gamestate"
+
     -- graphics helper
     push = require "lib.push"
 
+    -- debugging console
+    lovebird = require "lib.lovebird"
+    lovebird.port = 4444
+
+    -- pretty printer
+    inspect = require "lib.inspect"
+
     -- set filter
     love.graphics.setDefaultFilter("nearest", "nearest")
-  
+
     -- The awesome font used here is a recreation of the original
     -- Universal font used in the Ladybug arcade courtesy Patrick H. Lauke
     -- https://fontstruct.com/fontstructions/show/764098/lady_bug_2
@@ -21,22 +31,30 @@ function love.load()
         resizable = true,
         pixelperfect = true
     })
-    
-    push:setBorderColor{0,0,0}
+
+    push:setBorderColor{0, 0, 0}
     love.window.setTitle("Ladybug")
 
     paused = false
+    waited = 0
+
+    states = {
+      diagnostics = require "states.diagnostics",
+      attractmode = require "states.attractmode",
+    }
+
+    gs.registerEvents()
+    gs.switch(states.diagnostics)
 end
 
-function love.draw()
-    love.graphics.print('LADYBUG', 20, 50)
+function love.update(dt)
+  lovebird.update()
+
+  waited = waited + dt
 end
 
-function love.update()
-end
-
-function love.keypressed(k)    
-    if love.keyboard.isDown("escape") then
+function love.keypressed(k)
+    if k == "escape" then
         love.event.quit()
     end
 end
