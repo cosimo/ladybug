@@ -4,6 +4,9 @@ function love.load()
     -- game state management
     gs = require "lib.gamestate"
 
+    -- baton input from keyboard, joysticks
+    baton = require "lib.baton"
+
     -- graphics helper
     push = require "lib.push"
 
@@ -13,6 +16,9 @@ function love.load()
 
     -- pretty printer
     inspect = require "lib.inspect"
+
+    -- animation library
+    animation = require "lib.animation"
 
     -- set filter
     love.graphics.setDefaultFilter("nearest", "nearest")
