@@ -42,7 +42,6 @@ function love.load()
     love.window.setTitle("Ladybug")
 
     paused = false
-    waited = 0
 
     states = {
       diagnostics = require "states.diagnostics",
@@ -50,13 +49,12 @@ function love.load()
     }
 
     gs.registerEvents()
-    gs.switch(states.diagnostics)
+    -- gs.switch(states.diagnostics)
+    gs.switch(states.attractmode)
 end
 
 function love.update(dt)
-  lovebird.update()
-
-  waited = waited + dt
+    lovebird.update()
 end
 
 function love.keypressed(k)
