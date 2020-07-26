@@ -4,6 +4,15 @@ function love.load()
     -- game state management
     gs = require "lib.gamestate"
 
+    -- good quality:tm: functions, snippets, etc
+    helpers = require "lib.helpers"
+
+    -- deep queue management
+    deeper = require "lib.deeper"
+
+    -- entity manager
+    em = require "lib.entityman"
+
     -- baton input from keyboard, joysticks
     baton = require "lib.baton"
 
@@ -42,6 +51,8 @@ function love.load()
     love.window.setTitle("Ladybug")
 
     paused = false
+
+    entities = {}
 
     states = {
       diagnostics = require "states.diagnostics",

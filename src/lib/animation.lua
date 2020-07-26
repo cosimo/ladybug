@@ -1,3 +1,5 @@
+-- From firekatana/lib/ezanim.lua, https://dps2004.itch.io/firekatana
+
 local ezanim = {}
 
 function ezanim.newtemplate(png,w,s,b,l)
