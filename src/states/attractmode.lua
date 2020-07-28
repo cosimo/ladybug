@@ -5,6 +5,7 @@ local st = {}
 
 function st.init()
     st.ladybug = em.init("ladybug", 8, 8)
+    st.title = em.init("title")
     st.input = baton.new {
         controls = {
             left = {"key:left", "key:a", "axis:leftx-", "button:dpleft"},
