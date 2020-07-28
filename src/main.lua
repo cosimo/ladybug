@@ -52,8 +52,6 @@ function love.load()
 
     paused = false
 
-    entities = {}
-
     states = {
       diagnostics = require "states.diagnostics",
       attractmode = require "states.attractmode",
