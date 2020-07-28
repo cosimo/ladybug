@@ -5,11 +5,15 @@ local em = {
     entities = {}
 }
 
-function em.init(en,x,y)
+function em.init(en, x, y)
     local path = "obj/" .. en .. ".lua"
     local new = dofile(path)
-    new.x = x
-    new.y = y
+    if x then
+        new.x = x
+    end
+    if y then
+        new.y = y
+    end
     new.name = en
     table.insert(em.entities, new)
     return em.entities[#em.entities]
