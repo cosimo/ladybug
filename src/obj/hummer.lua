@@ -1,14 +1,14 @@
--- Ladybug sprite code
+-- Hummer sprite code
 
 local obj = {
     layer = -3,
     uplayer = 3,
-    anim = animation.newanim(animation.newtemplate("obj/ladybug", 16, 0.16)),
+    anim = animation.newanim(animation.newtemplate("obj/hummer", 16, 0.16)),
     initialized = false,
     delete = false,
     speed = 1,
-    x = 24,
-    y = 180,
+    x = 32,
+    y = 80,
     angle = 0
 }
 

@@ -4,8 +4,11 @@ local pi2 = pi / 2
 local st = {}
 
 function st.init()
-    st.ladybug = em.init("ladybug", 8, 8)
+    st.ladybug = em.init("ladybug")
     st.title = em.init("title")
+    st.beetle = em.init("beetle")
+    st.hummer = em.init("hummer")
+    st.mantis = em.init("mantis")
     st.input = baton.new {
         controls = {
             left = {"key:left", "key:a", "axis:leftx-", "button:dpleft"},

@@ -1,15 +1,15 @@
--- Ladybug sprite code
+-- Beetle sprite code
 
 local obj = {
     layer = -3,
     uplayer = 3,
-    anim = animation.newanim(animation.newtemplate("obj/ladybug", 16, 0.16)),
+    anim = animation.newanim(animation.newtemplate("obj/beetle", 16, 0.16)),
     initialized = false,
     delete = false,
     speed = 1,
-    x = 24,
-    y = 180,
-    angle = 0
+    x = 160,
+    y = 40,
+    angle = -math.pi
 }
 
 function obj.init()
