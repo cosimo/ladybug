@@ -4,6 +4,8 @@ local ezanim = {}
 
 function ezanim.newtemplate(png,w,s,b,l)
   local t = {}
+  local cycle_frames_backwards = true
+
   t.w = w
   t.s = s
   t.b = b or 0
@@ -17,12 +19,21 @@ function ezanim.newtemplate(png,w,s,b,l)
   t.frames = t.img:getWidth()/(w+t.b)
   t.quads = {}
   local offset = 0
-  for i=0,t.frames - 1 do
-    
+  for i=0, t.frames - 1 do
     quad = love.graphics.newQuad(i * t.w + offset, 0 , t.w, t.h, t.img:getWidth(), t.img:getHeight())
     table.insert(t.quads, quad)
     offset = offset + t.b
   end
+
+  if cycle_frames_backwards then
+      for i=t.frames - 2, 1, -1 do
+        quad = love.graphics.newQuad(i * t.w + offset, 0 , t.w, t.h, t.img:getWidth(), t.img:getHeight())
+        table.insert(t.quads, quad)
+        offset = offset - t.b
+        t.frames = t.frames + 1
+      end
+  end
+
   t.type = "normal"
   return t
 end
