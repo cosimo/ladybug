@@ -4,11 +4,14 @@ local pi2 = pi / 2
 local st = {}
 
 function st.init()
-    st.ladybug = em.init("ladybug")
     st.title = em.init("title")
+
+    st.ladybug = em.init("ladybug")
     st.beetle = em.init("beetle")
     st.hummer = em.init("hummer")
     st.mantis = em.init("mantis")
+    st.scarab = em.init("scarab")
+
     st.input = baton.new {
         controls = {
             left = {"key:left", "key:a", "axis:leftx-", "button:dpleft"},
@@ -113,6 +116,12 @@ end
 function st.draw()
     push:start()
     love.graphics.rectangle("line", 0, 0, windowWidth, windowHeight)
+
+    love.graphics.setColor(0xfc/255, 0xb2/255, 0xf2/255)
+    love.graphics.print("INSERT COIN", 56, 180);
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("1 COIN  1 PLAY", 40, 204);
     em.draw()
     push:finish()
 end

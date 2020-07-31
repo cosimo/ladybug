@@ -7,7 +7,7 @@ local obj = {
     delete = false,
     image = love.graphics.newImage("assets/obj/title.png"),
     x = 8,
-    y = 120,
+    y = 112,
     speed = 0,
     angle = 0
 }
