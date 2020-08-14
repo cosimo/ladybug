@@ -115,13 +115,16 @@ end
 
 function st.draw()
     push:start()
-    love.graphics.rectangle("line", 0, 0, windowWidth, windowHeight)
 
     love.graphics.setColor(0xfc/255, 0xb2/255, 0xf2/255)
     love.graphics.print("INSERT COIN", 56, 180);
 
+    love.graphics.setColor(1, 1, 0)
+    love.graphics.print("1       1", 40, 204);
+
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("1 COIN  1 PLAY", 40, 204);
+    love.graphics.print("COIN    PLAY", 56, 204);
+
     em.draw()
     push:finish()
 end
