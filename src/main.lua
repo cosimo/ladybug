@@ -55,11 +55,12 @@ function love.load()
     states = {
       diagnostics = require "states.diagnostics",
       attractmode = require "states.attractmode",
+      instructions = require "states.instructions",
     }
 
     gs.registerEvents()
-    -- gs.switch(states.diagnostics)
-    gs.switch(states.attractmode)
+    gs.switch(states.diagnostics)
+    -- gs.switch(states.attractmode)
 end
 
 function love.update(dt)
