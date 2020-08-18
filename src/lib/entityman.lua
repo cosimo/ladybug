@@ -5,6 +5,12 @@ local em = {
     entities = {}
 }
 
+function em.clear()
+    while #em.entities ~= 0 do
+        rawset(em.entities, #em.entities, nil)
+    end
+end
+
 function em.init(en, x, y)
     local path = "obj/" .. en .. ".lua"
     local new = dofile(path)
