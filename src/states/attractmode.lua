@@ -4,13 +4,8 @@ local pi2 = pi / 2
 local st = {}
 
 function st.init()
-    st.title = em.init("title")
-
-    st.ladybug = em.init("ladybug")
-    st.beetle = em.init("beetle")
-    st.hummer = em.init("hummer")
-    st.mantis = em.init("mantis")
-    st.scarab = em.init("scarab")
+    st.waited = 0.0
+    st.next_state = states.instructions
 
     st.input = baton.new {
         controls = {
@@ -30,6 +25,14 @@ function st.init()
 end
 
 function st.enter(prev)
+    em.clear()
+
+    st.title = em.init("title")
+    st.ladybug = em.init("ladybug")
+    st.beetle = em.init("beetle")
+    st.hummer = em.init("hummer")
+    st.mantis = em.init("mantis")
+    st.scarab = em.init("scarab")
 end
 
 function st.leave()
@@ -105,11 +108,15 @@ function st.check_boundaries(obj)
     end
 end
 
-function st.update(state, dt)
+function st.update(self, dt)
     lovebird.update()
-    st.input:update()
-    st.process_input()
-    st.check_boundaries(st.ladybug)
+    self.waited = self.waited + dt
+    if self.waited > 5.0 then
+        gs.switch(self.next_state)
+    end
+    self.input:update()
+    self.process_input()
+    self.check_boundaries(st.ladybug)
     em.update(dt)
 end
 
