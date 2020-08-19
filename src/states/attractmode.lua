@@ -39,6 +39,7 @@ function st.leave()
 end
 
 function st.resume()
+    st.enter()
 end
 
 function st.on_grid_x(obj)
@@ -46,7 +47,7 @@ function st.on_grid_x(obj)
     local snap_point = 8
     local tolerance = 4
     local can_snap = grid_offset >= (snap_point - tolerance)
-            and grid_offset <= (snap_point + tolerance)
+        and grid_offset <= (snap_point + tolerance)
 
     if can_snap then
         obj.y = obj.y - (grid_offset - snap_point)

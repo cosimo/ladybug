@@ -59,8 +59,7 @@ function love.load()
     }
 
     gs.registerEvents()
-    gs.switch(states.diagnostics)
-    -- gs.switch(states.attractmode)
+    gs.switch(states.instructions)
 end
 
 function love.update(dt)
