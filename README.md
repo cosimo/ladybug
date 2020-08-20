@@ -20,6 +20,9 @@ There's no game yet, but you run it by installing LÖVE first and then running:
 
 in the game source directory.
 
+## Current status
+
+![Ladybug demo movie](docs/ladybug.gif)
 
 ---
 
