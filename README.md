@@ -22,7 +22,7 @@ in the game source directory.
 
 ## Current status
 
-![Ladybug demo movie](docs/ladybug.gif)
+![Ladybug demo movie](docs/video-capture/demo.gif)
 
 ---
 
