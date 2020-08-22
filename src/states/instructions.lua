@@ -24,7 +24,75 @@ function st.enter(prev)
     st.next_state = states.attractmode
 
     st.playfield = em.init("playfield")
-    st.ladybug = em.init("ladybug", 16, 72)
+
+    local y_start = 69
+    local x_start = 52
+    local x_step = 16
+
+    st.ladybug = em.init("ladybug", 16, y_start - 5)
+
+    st.extra_row = {
+        st.letter("e", x_start, y_start),
+        st.letter("x", x_start + x_step, y_start),
+        st.letter("t", x_start + 2 * x_step, y_start),
+        st.letter("r", x_start + 3 * x_step, y_start),
+        st.letter("a", x_start + 4 * x_step, y_start),
+    }
+
+    y_start = y_start + 3 * 8
+
+    st.special_row = {
+        st.letter("s", x_start, y_start),
+        st.letter("p", x_start + x_step, y_start),
+        st.letter("e", x_start + 2 * x_step, y_start),
+        st.letter("c", x_start + 3 * x_step, y_start),
+        st.letter("i", x_start + 4 * x_step, y_start),
+        st.letter("a", x_start + 5 * x_step, y_start),
+        st.letter("l", x_start + 6 * x_step, y_start),
+    }
+
+    y_start = y_start + 3 * 8
+
+    st.hearts_row = {
+        st.heart(x_start, y_start),
+        st.heart(x_start + 2 * x_step, y_start),
+        st.heart(x_start + 4 * x_step, y_start),
+        st.skull(x_start + 7.5 * x_step, y_start),
+    }
+
+    y_start = y_start + 3 * 8
+
+    st.others = {
+        -- The dot has a weird placement: it's smaller than the other sprites
+        st.dot(x_start - 4, y_start - 4),
+        st.letter("x", x_start, y_start + 24)
+    }
+end
+
+function st.heart(x_pos, y_pos)
+    local heart = em.init("heart", x_pos, y_pos)
+
+    -- All heart bonus icons also start red as the letters
+    heart.anim.frame = 2
+
+    return heart
+end
+
+function st.dot(x_pos, y_pos)
+    return em.init("dot", x_pos, y_pos)
+end
+
+function st.skull(x_pos, y_pos)
+    return em.init("skull", x_pos, y_pos)
+end
+
+function st.letter(l, x_pos, y_pos)
+    local letter = em.init_with_type('letter', l, x_pos, y_pos)
+
+    -- All letters start colored red (third anim frame)
+    letter.anim.frame = 2
+
+    return letter
 end
 
 function st.leave()
@@ -51,7 +119,7 @@ end
 function st.draw()
     push:start()
 
-    love.graphics.setColor(0.5, 0.5, 0.5)
+    love.graphics.setColor(0.66, 0.66, 0.66)
     love.graphics.print("SPECIAL  EXTRA  ×2×3×5", 8, 9);
     love.graphics.print("1ST      0", 112, 209);
 
