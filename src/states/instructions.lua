@@ -30,6 +30,7 @@ function st.enter(prev)
     local x_step = 16
 
     st.ladybug = em.init("ladybug", 16, y_start - 5)
+    st.insect = em.init("insect", 21, 237)
 
     st.extra_row = {
         st.letter("e", x_start, y_start),
@@ -63,8 +64,7 @@ function st.enter(prev)
     y_start = y_start + 3 * 8
 
     st.others = {
-        -- The dot has a weird placement: it's smaller than the other sprites
-        st.dot(x_start - 4, y_start - 4),
+        st.dot(x_start - 2, y_start - 2),
         st.letter("x", x_start, y_start + 24)
     }
 end
@@ -119,17 +119,17 @@ end
 function st.draw()
     push:start()
 
-    love.graphics.setColor(0.66, 0.66, 0.66)
+    love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
     love.graphics.print("SPECIAL  EXTRA  ×2×3×5", 8, 9);
     love.graphics.print("1ST      0", 112, 209);
 
-    love.graphics.setColor(1, 0, 0);
+    love.graphics.setColor(1, 80/255, 2/255);
     love.graphics.print("TOP  UNIVERSAL  10000", 24, 225);
 
-    love.graphics.setColor(0, 1, 0);
+    love.graphics.setColor(0, 253/255, 3/255);
     love.graphics.print("=9500", 24, 233);
 
-    love.graphics.setColor(0, 0.5, 1);
+    love.graphics.setColor(6/255, 175/255, 1);
     love.graphics.print("PART91", 72, 233);
 
     love.graphics.setColor(1, 1, 1);

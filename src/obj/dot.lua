@@ -1,14 +1,14 @@
--- Dot static sprite code
+-- Dot sprite code
 
 local obj = {
-    layer = -4,
-    uplayer = 4,
+    layer = -5,
+    uplayer = 5,
+    anim = animation.newanim(animation.newtemplate("obj/dot", 3, 0)),
     initialized = false,
     delete = false,
-    image = love.graphics.newImage("assets/obj/dot.png"),
+    speed = 0,
     x = 0,
     y = 0,
-    speed = 0,
     angle = 0
 }
 
@@ -17,11 +17,11 @@ function obj.init()
 end
 
 function obj.update(dt)
+    animation.animupdate(obj.anim, dt)
 end
 
 function obj.draw()
-    -- Draw the dot centered around the coordinates
-    love.graphics.draw(obj.image, obj.x - 1, obj.y - 1, obj.angle)
+    animation.animdraw(obj.anim, obj.x, obj.y, obj.angle, 1, 1, 3, 3)
 end
 
 return obj

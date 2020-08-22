@@ -1,9 +1,9 @@
--- Skull sprite code
+-- Funny one-time appearance insect sprite code
 
 local obj = {
-    layer = -2,
-    uplayer = 2,
-    anim = animation.newanim(animation.newtemplate("obj/skull", 9, 0)),
+    layer = -5,
+    uplayer = 5,
+    anim = animation.newanim(animation.newtemplate("obj/insect", 10, 0)),
     initialized = false,
     delete = false,
     speed = 0,
@@ -21,7 +21,7 @@ function obj.update(dt)
 end
 
 function obj.draw()
-    animation.animdraw(obj.anim, obj.x, obj.y, obj.angle, 1, 1, 9, 9)
+    animation.animdraw(obj.anim, obj.x, obj.y, obj.angle, 1, 1, 10, 10)
 end
 
 return obj
