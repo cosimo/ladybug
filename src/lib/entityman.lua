@@ -14,13 +14,35 @@ end
 function em.init(en, x, y)
     local path = "obj/" .. en .. ".lua"
     local new = dofile(path)
+
     if x then
         new.x = x
     end
     if y then
         new.y = y
     end
+
     new.name = en
+
+    table.insert(em.entities, new)
+    return em.entities[#em.entities]
+end
+
+function em.init_with_type(en, type_, x, y)
+    local path = "obj/" .. en .. ".lua"
+
+    -- https://stackoverflow.com/questions/9744693/how-can-i-pass-parameters
+    local new = assert(loadfile(path))(type_)
+
+    if x then
+        new.x = x
+    end
+    if y then
+        new.y = y
+    end
+
+    new.name = en
+
     table.insert(em.entities, new)
     return em.entities[#em.entities]
 end
