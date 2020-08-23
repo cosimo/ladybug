@@ -1,17 +1,22 @@
 -- From firekatana/lib/ezanim.lua, https://dps2004.itch.io/firekatana
 
-local ezanim = {}
+local ezanim = {
+    loop = {
+        NONE = 0,
+        FORWARDS = 1,
+        PENDULUM = 3,
+    }
+}
 
 function ezanim.newtemplate(png, width, speed, border, loop)
   local t = {}
-  local cycle_frames_backwards = true
 
   t.width = width
   t.speed = speed
   t.border = border or 0
 
   if loop == nil then
-    t.loop = true
+    t.loop = ezanim.loop.PENDULUM
   else
     t.loop = loop
   end
@@ -28,7 +33,7 @@ function ezanim.newtemplate(png, width, speed, border, loop)
     offset = offset + t.border
   end
 
-  if cycle_frames_backwards then
+  if t.loop == ezanim.loop.PENDULUM then
       for i = t.frames - 2, 1, -1 do
         quad = love.graphics.newQuad(i * t.width + offset, 0 , t.width, t.height, t.img:getWidth(), t.img:getHeight())
         table.insert(t.quads, quad)
