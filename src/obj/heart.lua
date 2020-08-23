@@ -3,7 +3,8 @@
 local obj = {
     layer = -4,
     uplayer = 4,
-    anim = animation.newanim(animation.newtemplate("obj/heart", 9, 0)),
+    anim = animation.newanim(animation.newtemplate("obj/heart", 9,
+            0.5, 0, animation.loop.FORWARDS)),
     initialized = false,
     delete = false,
     speed = 0,
