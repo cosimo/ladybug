@@ -13,6 +13,9 @@ function love.load()
     -- entity manager
     em = require "lib.entityman"
 
+    -- pathfinder library
+    pathfinder = require "lib.pathfinder"
+
     -- baton input from keyboard, joysticks
     baton = require "lib.baton"
 
@@ -56,10 +59,11 @@ function love.load()
       diagnostics = require "states.diagnostics",
       attractmode = require "states.attractmode",
       instructions = require "states.instructions",
+      test = require "states.test",
     }
 
     gs.registerEvents()
-    gs.switch(states.instructions)
+    gs.switch(states.test)
 end
 
 function love.update(dt)
