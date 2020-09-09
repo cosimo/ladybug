@@ -42,7 +42,7 @@ function pathfinder.update(dt)
     end
 end
 
-function pathfinder.direction(path)
+function pathfinder.action(path)
     return path.steps[path.current_step][2]
 end
 
@@ -50,29 +50,47 @@ function pathfinder.speed(path)
     return path.steps[path.current_step][3]
 end
 
+function pathfinder.position(path)
+    return path.steps[path.current_step][3],
+           path.steps[path.current_step][4]
+end
+
 function pathfinder.move(path, entity)
     local speed = pathfinder.speed(path)
-    local direction = pathfinder.direction(path)
+    local action = pathfinder.action(path)
 
-    if direction == "←" then
+    -- Move left
+    if action == "←" then
         path.x = path.x - speed
-        path.angle = -math.pi
-    elseif direction == "→" then
+        entity.angle = -math.pi
+
+    -- Move right
+    elseif action == "→" then
         path.x = path.x + speed
-        path.angle = 0
-    elseif direction == "↑" then
+        entity.angle = 0
+
+    -- Move upward
+    elseif action == "↑" then
         path.y = path.y - speed
-        path.angle = -math.pi/2
-    elseif direction == "↓" then
+        entity.angle = -math.pi/2
+
+    -- Move downward
+    elseif action == "↓" then
         path.y = path.y + speed
-        path.angle = math.pi/2
+        entity.angle = math.pi/2
+
+    -- Lightning bolt: teleport to position
+    elseif action == "⚡" then
+        path.x, path.y = pathfinder.position(path)
+
+    -- Stop sign: do nothing
+    elseif action == "🛑" then
     end
 
     -- Keep fractional x, y positions separated
     -- to avoid sprite subpixel position artifacts
     entity.x = math.floor(path.x)
     entity.y = math.floor(path.y)
-    entity.angle = path.angle
 
 end
 
