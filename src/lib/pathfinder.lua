@@ -10,12 +10,13 @@ function pathfinder.new_path(entity, steps)
     -- {2, "↓", 0.5} => until time reaches 2.0s, move down with speed 0.5
     --
     local path = {
+        entity = entity,
+        x = entity.x,
+        y = entity.y,
+        angle = entity.angle,
         steps = steps,
         current_step = 1,
         time = 0,
-        x = entity.x,
-        y = entity.y,
-        angle = entity.angle
     }
     table.insert(pathfinder.paths, path)
     -- TODO perhaps we should start a path in a separate step
@@ -33,12 +34,18 @@ function pathfinder.update(dt)
         path.time = path.time + dt
         local step = path.steps[path.current_step]
         local interval_end = step[1]
-        if path.time > interval_end then
-            path.current_step = path.current_step + 1
-            if path.current_step > #path.steps then
-                pathfinder.restart(path)
-            end
+        if interval_end ~= nil and path.time > interval_end then
+            pathfinder.advance(path)
+        else
+            pathfinder.move(path)
         end
+    end
+end
+
+function pathfinder.advance(path)
+    path.current_step = path.current_step + 1
+    if path.current_step > #path.steps then
+        pathfinder.restart(path)
     end
 end
 
@@ -55,33 +62,67 @@ function pathfinder.position(path)
            path.steps[path.current_step][4]
 end
 
-function pathfinder.move(path, entity)
+function pathfinder.stop(path)
+    local step = path.steps[path.current_step]
+    if step[4] ~= nil and type(step[4]) == "table" then
+        return step[4][1], step[4][2]
+    else
+        return nil, nil
+    end
+end
+
+function pathfinder.move(path)
     local speed = pathfinder.speed(path)
     local action = pathfinder.action(path)
 
+    local new_x = path.x
+    local new_y = path.y
+    local new_angle = path.angle
+
+    local advance = false
+
+    -- FIXME is this going to work??
+    local stop_x, stop_y = pathfinder.stop(path)
+
     -- Move left
     if action == "←" then
-        path.x = path.x - speed
-        entity.angle = -math.pi
+        new_x = new_x - speed
+        new_angle = -math.pi
+        if stop_x ~= nil and new_x <= stop_x then
+            new_x = stop_x
+            advance = true
+        end
 
     -- Move right
     elseif action == "→" then
-        path.x = path.x + speed
-        entity.angle = 0
+        new_x = new_x + speed
+        new_angle = 0
+        if stop_x ~= nil and new_x >= stop_x then
+            new_x = stop_x
+            advance = true
+        end
 
     -- Move upward
     elseif action == "↑" then
-        path.y = path.y - speed
-        entity.angle = -math.pi/2
+        new_y = new_y - speed
+        new_angle = -math.pi/2
+        if stop_y ~= nil and new_y <= stop_y then
+            new_y = stop_y
+            advance = true
+        end
 
     -- Move downward
     elseif action == "↓" then
-        path.y = path.y + speed
-        entity.angle = math.pi/2
+        new_y = new_y + speed
+        new_angle = math.pi/2
+        if stop_y ~= nil and new_y >= stop_y then
+            new_y = stop_y
+            advance = true
+        end
 
     -- Lightning bolt: teleport to position
     elseif action == "⚡" then
-        path.x, path.y = pathfinder.position(path)
+        new_x, new_y = pathfinder.position(path)
 
     -- Stop sign: do nothing
     elseif action == "🛑" then
@@ -89,9 +130,18 @@ function pathfinder.move(path, entity)
 
     -- Keep fractional x, y positions separated
     -- to avoid sprite subpixel position artifacts
-    entity.x = math.floor(path.x)
-    entity.y = math.floor(path.y)
 
+    path.x = new_x
+    path.y = new_y
+    path.angle = new_angle
+
+    path.entity.x = math.floor(new_x)
+    path.entity.y = math.floor(new_y)
+    path.entity.angle = new_angle
+
+    if advance then
+        pathfinder.advance(path)
+    end
 end
 
 return pathfinder
