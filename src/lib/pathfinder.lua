@@ -43,6 +43,13 @@ function pathfinder.update(dt)
 end
 
 function pathfinder.advance(path)
+    local step = path.steps[path.current_step]
+    local end_callback = step[5]
+
+    if end_callback ~= nil then
+        end_callback()
+    end
+
     path.current_step = path.current_step + 1
     if path.current_step > #path.steps then
         pathfinder.restart(path)
