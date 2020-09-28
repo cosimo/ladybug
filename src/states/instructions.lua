@@ -3,23 +3,23 @@ local st = {}
 function st.init()
     st.input = baton.new {
         controls = {
-            left = {"key:left", "key:a", "axis:leftx-", "button:dpleft"},
-            right = {"key:right", "key:d", "axis:leftx+", "button:dpright"},
-            up = {"key:up", "key:w", "axis:lefty-", "button:dpup"},
-            down = {"key:down", "key:s", "axis:lefty+", "button:dpdown"},
-            slash = {"key:c", "button:a"},
-            place = {"key:z", "button:b"},
-            zoop = {"key:x", "button:x"}
+            coin = {"key:5"},
+            start = {"key:1", "key:2"},
         },
-        pairs = {
-            move = {"left", "right", "up", "down"}
-        },
+        -- TODO make some use of the joysticks
         joystick = love.joystick.getJoysticks()[1],
     }
 end
 
+function st.wipe(entity)
+    return function()
+        entity.delete = true;
+    end
+end
+
 function st.enter(prev)
     em.clear()
+
     st.waited = 0.0
     st.next_state = states.attractmode
 
@@ -28,9 +28,6 @@ function st.enter(prev)
     local y_start = 69
     local x_start = 52
     local x_step = 16
-
-    st.ladybug = em.init("ladybug", 16, y_start - 5)
-    st.insect = em.init("insect", 21, 237)
 
     st.extra_row = {
         st.letter("e", x_start, y_start),
@@ -66,6 +63,84 @@ function st.enter(prev)
     st.others = {
         st.dot(x_start - 2, y_start - 2),
         st.letter("x", x_start, y_start + 24)
+    }
+    st.insect = em.init("insect", 21, 237)
+
+    y_start = 69
+    x_start = 52
+    x_step = 16
+
+    st.ladybug = em.init("ladybug", 16, y_start - 5)
+    st.ladybug.path = pathfinder.new_path(st.ladybug, {
+        {2, "🛑"},
+        {nil, "→", 1, {x_start - 4},
+             function()
+                 st.extra_row[1].delete = true
+                 st.extra_lit["E"] = true
+             end
+        },
+        {3.5, "🛑"},
+        {nil, "→", 1, {x_start + x_step - 4},
+            function()
+                st.extra_row[2].delete = true
+                st.extra_lit["X"] = true
+            end
+        },
+        {5, "🛑"},
+        {nil, "→", 1, {x_start + 2 * x_step - 4},
+            function()
+                st.extra_row[3].delete = true
+                st.extra_lit["T"] = true
+            end
+        },
+        {6.5, "🛑"},
+        {nil, "→", 1, {x_start + 3 * x_step - 4},
+            function()
+                st.extra_row[4].delete = true
+                st.extra_lit["R"] = true
+            end
+        },
+        {8, "🛑"},
+        {nil, "→", 0.66, {x_start + 4 * x_step - 4},
+            function()
+                st.extra_row[5].delete = true
+                st.extra_lit["A"] = true
+                st.extra_ladybug = em.init("ladybug", x_start + 7.5 * x_step - 4, 69 - 5)
+            end
+        },
+        {10, "🛑"},
+        {12, "⚡", 16, y_start + (3 * 8) - 5},
+        {13, "🛑"},
+        {nil, "→", 1, {x_start - 4},
+            function()
+                st.special_row[1].delete = true
+                st.special_lit["S"] = true
+            end
+        },
+        {14.5, "🛑"},
+        {nil, "→", 1, {x_start + x_step - 4}, st.wipe(st.special_row[2])},
+        {16, "🛑"},
+        {nil, "→", 1, {x_start + 2 * x_step - 4}, st.wipe(st.special_row[3])},
+        {17.5, "🛑"},
+        {nil, "→", 1, {x_start + 3 * x_step - 4}, st.wipe(st.special_row[4])},
+    })
+
+    st.extra_lit = {
+        E = false,
+        X = false,
+        T = false,
+        R = false,
+        A = false,
+    }
+
+    st.special_lit = {
+        S = false,
+        P = false,
+        E = false,
+        C = false,
+        I = false,
+        A = false,
+        L = false,
     }
 end
 
@@ -113,18 +188,24 @@ function st.update(self, dt)
     end
     self.input:update()
     self.process_input()
+
+    pathfinder.update(dt)
+
     em.update(dt)
 end
 
 function st.draw()
     push:start()
 
+    st.draw_special_letters()
+    st.draw_extra_letters()
+
     love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-    love.graphics.print("SPECIAL  EXTRA  ×2×3×5", 8, 9);
+    love.graphics.print("                ×2×3×5", 8, 9)
     love.graphics.print("1ST      0", 112, 209);
 
     love.graphics.setColor(1, 80/255, 2/255);
-    love.graphics.print("TOP  UNIVERSAL  10000", 24, 225);
+    love.graphics.print("TOP  UNIVERSAL  10000", 24, 225)
 
     love.graphics.setColor(0, 253/255, 3/255);
     love.graphics.print("=9500", 24, 233);
@@ -142,6 +223,36 @@ function st.draw()
 
     em.draw()
     push:finish()
+end
+
+function st.draw_extra_letters()
+    local x = 80
+    local y = 9
+
+    local letters = {"E", "X", "T", "R", "A"}
+    for i, letter in ipairs(letters) do
+        if st.extra_lit[letter] == true then
+            love.graphics.setColor(1, 1, 0)
+        else
+            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
+        end
+        love.graphics.print(letter, x + 8 * (i - 1), y)
+    end
+end
+
+function st.draw_special_letters()
+    local x = 8
+    local y = 9
+
+    local letters = {"S", "P", "E", "C", "I", "A", "L"}
+    for i, letter in ipairs(letters) do
+        if st.special_lit[letter] == true then
+            love.graphics.setColor(1, 0, 0)
+        else
+            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
+        end
+        love.graphics.print(letter, x + 8 * (i - 1), y)
+    end
 end
 
 return st

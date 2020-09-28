@@ -14,16 +14,10 @@ function st.enter(prev)
     st.waited = 0.0
     st.ladybug = em.init("ladybug", 64, 100)
     st.ladybug_path = pathfinder.new_path(st.ladybug, {
-        {2,  "→", 0.5},
-        {3,  "↑", 0.5},
-        {4,  "←", 0.5},
-        {5,  "↑", 0.5},
-        {6,  "←", 0.5},
-        {8,  "↓", 0.5},
-        {10, "🛑"},
-        {10, "⚡", 64, 120},
-        {12, "🛑"},
-        {12, "⚡", 64, 100},
+        {nil, "→", 0.5, {96, nil}},
+        {nil, "↑", 0.5, {nil, 68}},
+        {nil, "←", 0.5, {64, nil}},
+        {nil, "↓", 0.5, {nil, 100}},
     })
 end
 
@@ -43,7 +37,6 @@ function st.update(self, dt)
     self.input:update()
     self.process_input()
     pathfinder.update(dt)
-    pathfinder.move(st.ladybug_path, st.ladybug)
     em.update(dt)
 end
 
