@@ -11,6 +11,8 @@ end
 
 function st.enter(prev)
     em.clear()
+    pathfinder.clear()
+
     st.waited = 0.0
     st.ladybug = em.init("ladybug", 64, 100)
     st.ladybug_path = pathfinder.new_path(st.ladybug, {

@@ -24,6 +24,12 @@ function pathfinder.new_path(entity, steps)
     return path
 end
 
+function pathfinder.clear()
+    while #pathfinder.paths ~= 0 do
+        rawset(pathfinder.paths, #pathfinder.paths, nil)
+    end
+end
+
 function pathfinder.restart(path)
     path.time = 0
     path.current_step = 1
