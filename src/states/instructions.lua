@@ -17,12 +17,37 @@ function st.wipe(entity)
     end
 end
 
-function st.enter(prev)
-    em.clear()
+function st.initialize_state()
+    st.extra_lit = {
+        E = false,
+        X = false,
+        T = false,
+        R = false,
+        A = false,
+    }
+
+    st.special_lit = {
+        S = false,
+        P = false,
+        E = false,
+        C = false,
+        I = false,
+        A = false,
+        L = false,
+    }
+
+    st.bonus_lit = {}
+    st.bonus_lit["2"] = false
+    st.bonus_lit["3"] = false
+    st.bonus_lit["5"] = false
+
+    st.credits = 0
 
     st.waited = 0.0
     st.next_state = states.attractmode
+end
 
+function st.initialize_sprites()
     st.playfield = em.init("playfield")
 
     local y_start = 69
@@ -72,76 +97,135 @@ function st.enter(prev)
 
     st.ladybug = em.init("ladybug", 16, y_start - 5)
     st.ladybug.path = pathfinder.new_path(st.ladybug, {
+
+        -- first row: EXTRA
+
         {2, "🛑"},
         {nil, "→", 1, {x_start - 4},
-             function()
-                 st.extra_row[1].delete = true
-                 st.extra_lit["E"] = true
-             end
+         function()
+             st.extra_row[1].delete = true
+             st.extra_lit["E"] = true
+         end
         },
         {3.5, "🛑"},
         {nil, "→", 1, {x_start + x_step - 4},
-            function()
-                st.extra_row[2].delete = true
-                st.extra_lit["X"] = true
-            end
+         function()
+             st.extra_row[2].delete = true
+             st.extra_lit["X"] = true
+         end
         },
         {5, "🛑"},
         {nil, "→", 1, {x_start + 2 * x_step - 4},
-            function()
-                st.extra_row[3].delete = true
-                st.extra_lit["T"] = true
-            end
+         function()
+             st.extra_row[3].delete = true
+             st.extra_lit["T"] = true
+         end
         },
         {6.5, "🛑"},
         {nil, "→", 1, {x_start + 3 * x_step - 4},
-            function()
-                st.extra_row[4].delete = true
-                st.extra_lit["R"] = true
-            end
+         function()
+             st.extra_row[4].delete = true
+             st.extra_lit["R"] = true
+         end
         },
         {8, "🛑"},
-        {nil, "→", 0.66, {x_start + 4 * x_step - 4},
-            function()
-                st.extra_row[5].delete = true
-                st.extra_lit["A"] = true
-                st.extra_ladybug = em.init("ladybug", x_start + 7.5 * x_step - 4, 69 - 5)
-            end
+        {nil, "→", 1, {x_start + 4 * x_step - 4},
+         function()
+             st.extra_row[5].delete = true
+             st.extra_lit["A"] = true
+             st.extra_ladybug = em.init("ladybug", x_start + 7.5 * x_step - 4, 69 - 5)
+         end
         },
-        {10, "🛑"},
+        {9.5, "🛑"},
+
+        -- second row: SPECIAL
+
         {12, "⚡", 16, y_start + (3 * 8) - 5},
-        {13, "🛑"},
         {nil, "→", 1, {x_start - 4},
-            function()
-                st.special_row[1].delete = true
-                st.special_lit["S"] = true
-            end
+         function()
+             st.special_row[1].delete = true
+             st.special_lit["S"] = true
+         end
         },
-        {14.5, "🛑"},
-        {nil, "→", 1, {x_start + x_step - 4}, st.wipe(st.special_row[2])},
-        {16, "🛑"},
-        {nil, "→", 1, {x_start + 2 * x_step - 4}, st.wipe(st.special_row[3])},
-        {17.5, "🛑"},
-        {nil, "→", 1, {x_start + 3 * x_step - 4}, st.wipe(st.special_row[4])},
+        {13.5, "🛑"},
+        {nil, "→", 1, {x_start + x_step - 4},
+         function()
+             st.special_row[2].delete = true
+             st.special_lit["P"] = true
+         end
+        },
+        {15, "🛑"},
+        {nil, "→", 1, {x_start + 2 * x_step - 4},
+         function()
+             st.special_row[3].delete = true
+             st.special_lit["E"] = true
+         end
+        },
+        {16.5, "🛑"},
+        {nil, "→", 1, {x_start + 3 * x_step - 4},
+         function()
+             st.special_row[4].delete = true
+             st.special_lit["C"] = true
+         end
+        },
+        {18, "🛑"},
+        {nil, "→", 1, {x_start + 4 * x_step - 4},
+         function()
+             st.special_row[5].delete = true
+             st.special_lit["I"] = true
+         end
+        },
+        {19.5, "🛑"},
+        {nil, "→", 1, {x_start + 5 * x_step - 4},
+         function()
+             st.special_row[6].delete = true
+             st.special_lit["A"] = true
+         end
+        },
+        {21, "🛑"},
+        {nil, "→", 1, {x_start + 6 * x_step - 4},
+         function()
+             st.special_row[7].delete = true
+             st.special_lit["L"] = true
+             st.special_dollar = em.init("ladybug",
+                     x_start + 7.5 * x_step - 4, 69 + 24 - 5)
+         end
+        },
+
+        -- third row: hearts
+
+        {22.5, "⚡", 16, y_start + (6 * 8) - 5},
+        {nil, "→", 1, {x_start - 4},
+         function()
+             st.hearts_row[1].delete = true
+             st.bonus_lit["2"] = true
+         end
+        },
+
+        {24, "🛑"},
+        {nil, "→", 1, {x_start + x_step - 4},
+         function()
+             st.hearts_row[2].delete = true
+             st.bonus_lit["3"] = true
+         end
+        },
+
+        {25.5, "🛑"},
+        {nil, "→", 1, {x_start + 2 * x_step - 4},
+         function()
+             st.hearts_row[3].delete = true
+             st.bonus_lit["5"] = true
+         end
+        },
     })
+end
 
-    st.extra_lit = {
-        E = false,
-        X = false,
-        T = false,
-        R = false,
-        A = false,
-    }
+function st.enter(prev)
+    em.clear()
+    pathfinder.clear()
 
-    st.special_lit = {
-        S = false,
-        P = false,
-        E = false,
-        C = false,
-        I = false,
-        A = false,
-        L = false,
-    }
+    st.initialize_state()
+    st.initialize_sprites()
 end
 
 function st.heart(x_pos, y_pos)
@@ -171,6 +255,7 @@ function st.letter(l, x_pos, y_pos)
 end
 
 function st.leave()
+
 end
 
 function st.resume()
@@ -183,9 +268,11 @@ end
 function st.update(self, dt)
     lovebird.update()
     self.waited = self.waited + dt
-    if self.waited > 20.0 then
+
+    if self.waited > 30.0 then
         gs.switch(self.next_state)
     end
+
     self.input:update()
     self.process_input()
 
@@ -199,9 +286,8 @@ function st.draw()
 
     st.draw_special_letters()
     st.draw_extra_letters()
+    st.draw_bonus_multipliers()
 
-    love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-    love.graphics.print("                ×2×3×5", 8, 9)
     love.graphics.print("1ST      0", 112, 209);
 
     love.graphics.setColor(1, 80/255, 2/255);
@@ -214,7 +300,7 @@ function st.draw()
     love.graphics.print("PART91", 72, 233);
 
     love.graphics.setColor(1, 1, 1);
-    love.graphics.print("CREDIT 0", 128, 233);
+    love.graphics.print("CREDIT " .. st.credits, 128, 233);
 
     love.graphics.print("INSTRUCTION", 56, 41);
 
@@ -223,6 +309,21 @@ function st.draw()
 
     em.draw()
     push:finish()
+end
+
+function st.draw_bonus_multipliers()
+    local x = 136
+    local y = 9
+
+    local multipliers = {"2", "3", "5"}
+    for i, mul in ipairs(multipliers) do
+        if st.bonus_lit[mul] == true then
+            love.graphics.setColor(0.25, 0.6, 1)
+        else
+            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
+        end
+        love.graphics.print("×" .. mul, x + 16 * (i - 1), y)
+    end
 end
 
 function st.draw_extra_letters()
