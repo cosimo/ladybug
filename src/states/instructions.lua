@@ -11,12 +11,6 @@ function st.init()
     }
 end
 
-function st.wipe(entity)
-    return function()
-        entity.delete = true;
-    end
-end
-
 function st.initialize_state()
     st.extra_lit = {
         E = false,
@@ -42,8 +36,9 @@ function st.initialize_state()
     st.bonus_lit["5"] = false
 
     st.credits = 0
-
     st.waited = 0.0
+    st.current_bonus_points = ""
+
     st.next_state = states.attractmode
 end
 
@@ -187,8 +182,8 @@ function st.initialize_sprites()
          function()
              st.special_row[7].delete = true
              st.special_lit["L"] = true
-             st.special_dollar = em.init("ladybug",
-                     x_start + 7.5 * x_step - 4, 69 + 24 - 5)
+             st.special_dollar = em.init("coin",
+                     x_start + 7.5 * x_step - 12, 69 + 24 - 13)
          end
         },
 
@@ -203,7 +198,7 @@ function st.initialize_sprites()
         },
 
         {24, "🛑"},
-        {nil, "→", 1, {x_start + x_step - 4},
+        {nil, "→", 1, {x_start + 2 * x_step - 4},
          function()
              st.hearts_row[2].delete = true
              st.bonus_lit["3"] = true
@@ -211,7 +206,7 @@ function st.initialize_sprites()
         },
 
         {25.5, "🛑"},
-        {nil, "→", 1, {x_start + 2 * x_step - 4},
+        {nil, "→", 1, {x_start + 4 * x_step - 4},
          function()
              st.hearts_row[3].delete = true
              st.bonus_lit["5"] = true
@@ -267,7 +262,11 @@ end
 
 function st.update(self, dt)
     lovebird.update()
+
     self.waited = self.waited + dt
+
+    local points_by_time = {"800", "300", "100"}
+    self.current_bonus_points = points_by_time[math.floor(self.waited * 2) % 3 + 1]
 
     if self.waited > 30.0 then
         gs.switch(self.next_state)
@@ -288,24 +287,24 @@ function st.draw()
     st.draw_extra_letters()
     st.draw_bonus_multipliers()
 
-    love.graphics.print("1ST      0", 112, 209);
+    love.graphics.print("1ST      0", 112, 209)
 
-    love.graphics.setColor(1, 80/255, 2/255);
+    love.graphics.setColor(1, 80/255, 2/255)
     love.graphics.print("TOP  UNIVERSAL  10000", 24, 225)
 
-    love.graphics.setColor(0, 253/255, 3/255);
-    love.graphics.print("=9500", 24, 233);
+    love.graphics.setColor(0, 253/255, 3/255)
+    love.graphics.print("=9500", 24, 233)
 
-    love.graphics.setColor(6/255, 175/255, 1);
-    love.graphics.print("PART91", 72, 233);
+    love.graphics.setColor(6/255, 175/255, 1)
+    love.graphics.print("PART91", 72, 233)
 
-    love.graphics.setColor(1, 1, 1);
-    love.graphics.print("CREDIT " .. st.credits, 128, 233);
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("CREDIT " .. st.credits, 128, 233)
 
-    love.graphics.print("INSTRUCTION", 56, 41);
+    love.graphics.print("INSTRUCTION", 56, 41)
 
-    love.graphics.print(" 10 POINTS", 64, 137);
-    love.graphics.print("800 POINTS", 64, 161);
+    love.graphics.print(" 10 POINTS", 64, 137)
+    love.graphics.print(st.current_bonus_points .. " POINTS", 64, 161)
 
     em.draw()
     push:finish()
