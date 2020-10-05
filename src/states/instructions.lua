@@ -212,6 +212,15 @@ function st.initialize_sprites()
              st.bonus_lit["5"] = true
          end
         },
+
+        {27, "🛑"},
+        {nil, "→", 1, {x_start + 7.5 * x_step - 4},
+         function()
+             st.ladybug.delete = true
+             st.hearts_row[4].delete = true   -- skull
+             st.ladybug_ghost = em.init("ghost", x_start + 7.5 * x_step - 4, 69 + 48 - 4)
+         end
+        },
     })
 end
 
@@ -268,16 +277,16 @@ function st.update(self, dt)
     local points_by_time = {"800", "300", "100"}
     self.current_bonus_points = points_by_time[math.floor(self.waited * 2) % 3 + 1]
 
-    if self.waited > 30.0 then
-        gs.switch(self.next_state)
-    end
-
     self.input:update()
     self.process_input()
 
     pathfinder.update(dt)
 
     em.update(dt)
+
+    if self.waited > 29.6 then
+        gs.switch(self.next_state)
+    end
 end
 
 function st.draw()
@@ -303,8 +312,17 @@ function st.draw()
 
     love.graphics.print("INSTRUCTION", 56, 41)
 
-    love.graphics.print(" 10 POINTS", 64, 137)
-    love.graphics.print(st.current_bonus_points .. " POINTS", 64, 161)
+    local points_mult = " POINTS"
+    if st.bonus_lit["5"] then
+        points_mult = points_mult .. " ×5"
+    elseif st.bonus_lit["3"] then
+        points_mult = points_mult .. " ×3"
+    elseif st.bonus_lit["2"] then
+        points_mult = points_mult .. " ×2"
+    end
+
+    love.graphics.print(" 10" .. points_mult, 64, 137)
+    love.graphics.print(st.current_bonus_points .. points_mult, 64, 161)
 
     em.draw()
     push:finish()
