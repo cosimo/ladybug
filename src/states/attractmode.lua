@@ -26,6 +26,7 @@ end
 
 function st.enter(prev)
     em.clear()
+    st.waited = 0.0
 
     st.title = em.init("title")
     st.ladybug = em.init("ladybug")

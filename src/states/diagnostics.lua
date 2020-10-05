@@ -6,6 +6,7 @@ function st.init()
 end
 
 function st.enter(prev)
+    st.waited = 0.0
 end
 
 function st.leave()
