@@ -189,7 +189,7 @@ function st.initialize_sprites()
 
         -- third row: hearts
 
-        {22.5, "⚡", 16, y_start + (6 * 8) - 5},
+        {23.5, "⚡", 16, y_start + (6 * 8) - 5},
         {nil, "→", 1, {x_start - 4},
          function()
              st.hearts_row[1].delete = true
@@ -197,7 +197,7 @@ function st.initialize_sprites()
          end
         },
 
-        {24, "🛑"},
+        {25, "🛑"},
         {nil, "→", 1, {x_start + 2 * x_step - 4},
          function()
              st.hearts_row[2].delete = true
@@ -205,7 +205,7 @@ function st.initialize_sprites()
          end
         },
 
-        {25.5, "🛑"},
+        {26.5, "🛑"},
         {nil, "→", 1, {x_start + 4 * x_step - 4},
          function()
              st.hearts_row[3].delete = true
@@ -213,7 +213,7 @@ function st.initialize_sprites()
          end
         },
 
-        {27, "🛑"},
+        {28, "🛑"},
         {nil, "→", 1, {x_start + 7.5 * x_step - 4},
          function()
              st.ladybug.delete = true
@@ -284,7 +284,7 @@ function st.update(self, dt)
 
     em.update(dt)
 
-    if self.waited > 29.6 then
+    if self.waited > 30.3 then
         gs.switch(self.next_state)
     end
 end
