@@ -3,7 +3,7 @@
 local obj = {
     layer = -2,
     uplayer = 2,
-    anim = animation.newanim(animation.newtemplate("obj/turnstile", 32, 0.5, 0, false)),
+    anim = animation.newanim(animation.newtemplate("obj/turnstile", 32, 0.1, 0, false)),
     initialized = false,
     delete = false,
     speed = 1,
