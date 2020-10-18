@@ -39,7 +39,7 @@ function st.initialize_state()
     st.waited = 0.0
     st.current_bonus_points = ""
 
-    -- st.next_state = states.attractmode
+    st.next_state = states.playdemo2
 end
 
 function st.letter(l, x_pos, y_pos)
@@ -64,11 +64,8 @@ function st.heart(x_pos, y_pos)
     return heart
 end
 
-function st.still_ladybug(x_pos, y_pos)
-    local live = em.init("ladybug", x_pos, y_pos)
-    live.anim.frame = 4
-    live.anim.temp.loop = animation.loop.NONE
-    return live
+function st.player_life(x_pos, y_pos)
+    return em.init("life", x_pos, y_pos)
 end
 
 function st.initialize_sprites()
@@ -97,9 +94,9 @@ function st.initialize_sprites()
     }
 
     st.lives = {
-        st.still_ladybug(15, 216),
-        st.still_ladybug(31, 216),
-        st.still_ladybug(47, 216)
+        st.player_life(7, 208),
+        st.player_life(23, 208),
+        st.player_life(39, 208)
     }
 end
 
@@ -135,9 +132,9 @@ function st.update(self, dt)
     pathfinder.update(dt)
     em.update(dt)
 
-    --if self.waited > 30.3 then
-    --    gs.switch(self.next_state)
-    --end
+    if self.waited > 3.0 then
+        gs.switch(self.next_state)
+    end
 end
 
 function st.draw()
