@@ -32,6 +32,9 @@ function love.load()
     -- animation library
     animation = require "lib.animation"
 
+    -- ladybug board logic
+    gameboard = require "lib.gameboard"
+
     -- set filter
     love.graphics.setDefaultFilter("nearest", "nearest")
 
@@ -59,11 +62,13 @@ function love.load()
       diagnostics = require "states.diagnostics",
       attractmode = require "states.attractmode",
       instructions = require "states.instructions",
+      playdemo = require "states.playdemo",
+      playdemo2 = require "states.playdemo2",
       test = require "states.test",
     }
 
     gs.registerEvents()
-    gs.switch(states.test)
+    gs.switch(states.diagnostics)
 end
 
 function love.update(dt)
