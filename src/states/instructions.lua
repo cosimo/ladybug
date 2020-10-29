@@ -39,7 +39,7 @@ function st.initialize_state()
     st.waited = 0.0
     st.current_bonus_points = ""
 
-    st.next_state = states.attractmode
+    st.next_state = states.playdemo
 end
 
 function st.initialize_sprites()
