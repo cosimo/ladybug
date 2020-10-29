@@ -1,8 +1,10 @@
 local gameboard = {
     size = {x=11, y=11, w=16, h=16},
     offset = {x=2, y=19},
+
     grid = {},
     entities = {},
+
     gates = {},
     gate_entities = {},
 
@@ -79,12 +81,32 @@ function gameboard.random_initialize()
 
     -- Turnstile states
     gates[2][1] = gameboard.TURNSTILE_H
+    gates[9][1] = gameboard.TURNSTILE_H
+
+    gates[4][2] = gameboard.TURNSTILE_V
+    gates[7][2] = gameboard.TURNSTILE_V
+
     gates[1][3] = gameboard.TURNSTILE_V
     gates[3][3] = gameboard.TURNSTILE_H
-    gates[4][2] = gameboard.TURNSTILE_V
+    gates[8][3] = gameboard.TURNSTILE_H
+    gates[10][3] = gameboard.TURNSTILE_V
+
     gates[4][4] = gameboard.TURNSTILE_H
-    gates[7][2] = gameboard.TURNSTILE_H
-    gates[9][1] = gameboard.TURNSTILE_H
+    gates[7][4] = gameboard.TURNSTILE_H
+
+    gates[3][6] = gameboard.TURNSTILE_V
+    gates[8][6] = gameboard.TURNSTILE_V
+
+    gates[2][7] = gameboard.TURNSTILE_V
+    gates[4][7] = gameboard.TURNSTILE_V
+    gates[7][7] = gameboard.TURNSTILE_V
+    gates[9][7] = gameboard.TURNSTILE_V
+
+    gates[4][9] = gameboard.TURNSTILE_H
+    gates[7][9] = gameboard.TURNSTILE_H
+
+    gates[2][10] = gameboard.TURNSTILE_H
+    gates[9][10] = gameboard.TURNSTILE_H
 
     gameboard.render()
 end
