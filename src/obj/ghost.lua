@@ -4,8 +4,7 @@ local obj = {
     layer = -3,
     uplayer = 3,
     anim = animation.newanim(
-        animation.newtemplate("obj/ghost", 16, 0.125,
-                0, animation.loop.NONE)
+        animation.newtemplate("obj/ghost", 16, 0.125, 0, animation.loop.FORWARDS)
     ),
     initialized = false,
     delete = false,
