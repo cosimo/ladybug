@@ -35,6 +35,9 @@ function love.load()
     -- ladybug board logic
     gameboard = require "lib.gameboard"
 
+    -- timer blocks frame
+    timeblocks = require "lib.timeblocks"
+
     -- set filter
     love.graphics.setDefaultFilter("nearest", "nearest")
 

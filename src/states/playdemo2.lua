@@ -39,7 +39,9 @@ function st.initialize_state()
     st.waited = 0.0
     st.current_bonus_points = ""
 
-    -- st.next_state = states.attractmode
+    st.is_player_dead = false
+
+    st.next_state = states.attractmode
 end
 
 function st.initialize_sprites()
@@ -48,7 +50,7 @@ function st.initialize_sprites()
     gameboard.random_initialize()
 
     st.low_hanging_fruit = {
-        em.init("cucumber", 8,224)
+        em.init("cucumber", 8, 224)
     }
 
     st.player_lives = {
@@ -61,6 +63,7 @@ end
 function st.enter(prev)
     em.clear()
     pathfinder.clear()
+    timeblocks.initialize()
 
     st.initialize_state()
     st.initialize_sprites()
@@ -89,10 +92,11 @@ function st.update(self, dt)
 
     pathfinder.update(dt)
     em.update(dt)
+    timeblocks.update(dt)
 
-    --if self.waited > 3.0 then
-    --    gs.switch(self.next_state)
-    --end
+    if self.is_player_dead then
+        gs.switch(self.next_state)
+    end
 end
 
 function st.draw()
@@ -117,6 +121,11 @@ function st.draw()
     love.graphics.print("CREDIT " .. st.credits, 128, 233)
 
     em.draw()
+
+    -- After em.draw() or the playfield static graphics will overwrite
+    -- the timing block colors
+    timeblocks.render()
+
     push:finish()
 end
 
@@ -146,9 +155,8 @@ function st.player_life(x_pos, y_pos)
     return em.init("life", x_pos, y_pos)
 end
 
-
 function st.draw_bonus_multipliers()
-    local x = 136
+    local x = 137
     local y = 9
 
     local multipliers = {"2", "3", "5"}
