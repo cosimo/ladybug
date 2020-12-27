@@ -169,7 +169,7 @@ function st.draw()
 end
 
 function st.draw_bonus_multipliers()
-    local x = 136
+    local x = 137
     local y = 9
 
     local multipliers = {"2", "3", "5"}
