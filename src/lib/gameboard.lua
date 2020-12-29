@@ -229,4 +229,66 @@ function gameboard.screen_xy(board_x, board_y, entity_name)
     return screen_x, screen_y
 end
 
+function gameboard.draw_bonus_multipliers(bonus_lit)
+    local x = 136
+    local y = 9
+
+    local multipliers = {"2", "3", "5"}
+    for i, mul in ipairs(multipliers) do
+        if bonus_lit[mul] == true then
+            love.graphics.setColor(0.25, 0.6, 1)
+        else
+            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
+        end
+        love.graphics.print("×", x + 1 + 16 * (i - 1), y)
+        love.graphics.print(mul, x + 8 + 16 * (i - 1), y)
+    end
+end
+
+function gameboard.draw_extra_letters(extra_lit)
+    local x = 80
+    local y = 9
+
+    local letters = {"E", "X", "T", "R", "A"}
+    for i, letter in ipairs(letters) do
+        if extra_lit[letter] == true then
+            love.graphics.setColor(1, 1, 0)
+        else
+            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
+        end
+        love.graphics.print(letter, x + 8 * (i - 1), y)
+    end
+end
+
+function gameboard.draw_special_letters(special_lit)
+    local x = 8
+    local y = 9
+
+    local letters = {"S", "P", "E", "C", "I", "A", "L"}
+    for i, letter in ipairs(letters) do
+        if special_lit[letter] == true then
+            love.graphics.setColor(1, 0, 0)
+        else
+            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
+        end
+        love.graphics.print(letter, x + 8 * (i - 1), y)
+    end
+end
+
+function gameboard.draw_player_score(player, score)
+    local score_str = player == 1 and "1ST" or "2ND"
+    score_str = score_str .. "      " .. score
+    love.graphics.print(score_str, 112, 209)
+end
+
+function gameboard.draw_high_score(player, score)
+    love.graphics.setColor(1, 80/255, 0)
+    love.graphics.print("TOP  " .. player .. "  " .. score, 24, 225)
+end
+
+function gameboard.draw_credits(credits)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("CREDIT " .. credits, 128, 233)
+end
+
 return gameboard

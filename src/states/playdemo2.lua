@@ -47,8 +47,6 @@ end
 function st.initialize_sprites()
     st.playfield = em.init("playfield_level1")
 
-    gameboard.random_initialize()
-
     st.low_hanging_fruit = {
         em.init("cucumber", 8, 224)
     }
@@ -60,13 +58,18 @@ function st.initialize_sprites()
     }
 end
 
+function st.initialize_gameboard()
+    gameboard.random_initialize()
+    timeblocks.initialize()
+end
+
 function st.enter(prev)
     em.clear()
     pathfinder.clear()
-    timeblocks.initialize()
 
     st.initialize_state()
     st.initialize_sprites()
+    st.initialize_gameboard()
 end
 
 function st.leave()
@@ -84,6 +87,10 @@ function st.update(self, dt)
 
     self.waited = self.waited + dt
 
+    if not self.is_timer_started and self.waited > 3 then
+        self.is_timer_started = true
+    end
+
     local points_by_time = {"800", "300", "100"}
     self.current_bonus_points = points_by_time[math.floor(self.waited * 2) % 3 + 1]
 
@@ -92,7 +99,10 @@ function st.update(self, dt)
 
     pathfinder.update(dt)
     em.update(dt)
-    timeblocks.update(dt)
+
+    if self.is_timer_started then
+        timeblocks.update(dt)
+    end
 
     if self.is_player_dead then
         gs.switch(self.next_state)
@@ -102,14 +112,12 @@ end
 function st.draw()
     push:start()
 
-    st.draw_special_letters()
-    st.draw_extra_letters()
-    st.draw_bonus_multipliers()
+    gameboard.draw_special_letters(st.special_lit)
+    gameboard.draw_extra_letters(st.extra_lit)
+    gameboard.draw_bonus_multipliers(st.bonus_lit)
 
-    love.graphics.print("1ST      0", 112, 209)
-
-    love.graphics.setColor(1, 80/255, 0)
-    love.graphics.print("TOP  UNIVERSAL  10000", 24, 225)
+    gameboard.draw_player_score(1, 0)
+    gameboard.draw_high_score("UNIVERSAL", 10000)
 
     love.graphics.setColor(0, 253/255, 3/255)
     love.graphics.print("=1000", 24, 233)
@@ -117,8 +125,7 @@ function st.draw()
     love.graphics.setColor(6/255, 175/255, 1)
     love.graphics.print("PART 1", 72, 233)
 
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("CREDIT " .. st.credits, 128, 233)
+    gameboard.draw_credits(st.credits)
 
     em.draw()
 
@@ -153,51 +160,6 @@ end
 
 function st.player_life(x_pos, y_pos)
     return em.init("life", x_pos, y_pos)
-end
-
-function st.draw_bonus_multipliers()
-    local x = 137
-    local y = 9
-
-    local multipliers = {"2", "3", "5"}
-    for i, mul in ipairs(multipliers) do
-        if st.bonus_lit[mul] == true then
-            love.graphics.setColor(0.25, 0.6, 1)
-        else
-            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-        end
-        love.graphics.print("×" .. mul, x + 16 * (i - 1), y)
-    end
-end
-
-function st.draw_extra_letters()
-    local x = 80
-    local y = 9
-
-    local letters = {"E", "X", "T", "R", "A"}
-    for i, letter in ipairs(letters) do
-        if st.extra_lit[letter] == true then
-            love.graphics.setColor(1, 1, 0)
-        else
-            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-        end
-        love.graphics.print(letter, x + 8 * (i - 1), y)
-    end
-end
-
-function st.draw_special_letters()
-    local x = 8
-    local y = 9
-
-    local letters = {"S", "P", "E", "C", "I", "A", "L"}
-    for i, letter in ipairs(letters) do
-        if st.special_lit[letter] == true then
-            love.graphics.setColor(1, 0, 0)
-        else
-            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-        end
-        love.graphics.print(letter, x + 8 * (i - 1), y)
-    end
 end
 
 return st
