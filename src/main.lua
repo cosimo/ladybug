@@ -82,6 +82,9 @@ function love.keypressed(k)
     if k == "escape" then
         love.event.quit()
     end
+    if k == "p" then
+        paused = not paused
+    end
 end
 
 function love.resize(w, h)

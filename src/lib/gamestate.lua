@@ -92,6 +92,9 @@ function GS.registerEvents(callbacks)
 		registry[f] = love[f] or __NULL__
 		love[f] = function(...)
 			registry[f](...)
+			if f == 'update' and paused then
+				return
+			end
 			return GS[f](...)
 		end
 	end
