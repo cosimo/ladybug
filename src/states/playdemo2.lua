@@ -40,6 +40,7 @@ function st.initialize_state()
     st.current_bonus_points = ""
 
     st.is_player_dead = false
+    st.is_timer_started = false
 
     st.next_state = states.attractmode
 end
@@ -56,6 +57,31 @@ function st.initialize_sprites()
         st.player_life(23, 208),
         st.player_life(39, 208)
     }
+
+    local start_x = 88
+    local start_y = 168
+    local life = 3
+
+    -- Animation from the static ladybug life at the bottom
+    -- to a dynamic sprite that will start moving
+    st.player_lives[life].path = pathfinder.new_path(st.player_lives[life], {
+        {0.5, "🛑"},
+        {nil, "→", 1, {start_x}},
+        {nil, "↑", 1, {nil, start_y},
+            function()
+                st.spawn_ladybug(life, start_x, start_y)
+            end
+        },
+    })
+end
+
+-- Replace the static ladybug in position life_number
+-- with a new animated sprite for the real player
+function st.spawn_ladybug(life_number, x, y)
+    st.player_lives[life_number].delete = true
+    st.ladybug = em.init("ladybug", x + 8, y - 8)
+    st.ladybug.angle = -math.pi/2
+    st.is_timer_started = true
 end
 
 function st.initialize_gameboard()
@@ -86,10 +112,6 @@ function st.update(self, dt)
     lovebird.update()
 
     self.waited = self.waited + dt
-
-    if not self.is_timer_started and self.waited > 3 then
-        self.is_timer_started = true
-    end
 
     local points_by_time = {"800", "300", "100"}
     self.current_bonus_points = points_by_time[math.floor(self.waited * 2) % 3 + 1]
