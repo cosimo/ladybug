@@ -2,7 +2,7 @@ local pathfinder = {
     paths = {}
 }
 
-function pathfinder.new_path(entity, steps)
+function pathfinder.new_path(entity, steps, move_callback)
     --
     -- Each element of the steps array is expected to be a tuple
     -- of {time, direction, speed}, with the following meaning:
@@ -17,6 +17,7 @@ function pathfinder.new_path(entity, steps)
         steps = steps,
         current_step = 1,
         time = 0,
+        callback = move_callback,
     }
     table.insert(pathfinder.paths, path)
     -- TODO perhaps we should start a path in a separate step
@@ -93,8 +94,6 @@ function pathfinder.move(path)
     local new_angle = path.angle
 
     local advance = false
-
-    -- FIXME is this going to work??
     local stop_x, stop_y = pathfinder.stop(path)
 
     -- Move left
@@ -148,9 +147,18 @@ function pathfinder.move(path)
     path.y = new_y
     path.angle = new_angle
 
+    local prev_x = path.entity.x
+    local prev_y = path.entity.y
+
     path.entity.x = math.floor(new_x)
     path.entity.y = math.floor(new_y)
+
     path.entity.angle = new_angle
+
+    local changed_position = (prev_x ~= path.entity.x or prev_y ~= path.entity.y)
+    if path.callback and changed_position then
+        path.callback(path.entity, path.entity.x, path.entity.y, prev_x, prev_y)
+    end
 
     if advance then
         pathfinder.advance(path)
