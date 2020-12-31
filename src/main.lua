@@ -38,6 +38,9 @@ function love.load()
     -- timer blocks frame
     timeblocks = require "lib.timeblocks"
 
+    -- collision detection library
+    collision = require "lib.collision"
+
     -- set filter
     love.graphics.setDefaultFilter("nearest", "nearest")
 
