@@ -78,10 +78,13 @@ end
 -- Replace the static ladybug in position life_number
 -- with a new animated sprite for the real player
 function st.spawn_ladybug(life_number, x, y)
-    st.player_lives[life_number].delete = true
-    st.ladybug = em.init("ladybug", x + 8, y - 8)
-    st.ladybug.angle = -math.pi/2
-    st.is_timer_started = true
+    if not st.ladybug then
+        st.player_lives[life_number].delete = true
+        st.ladybug = em.init("ladybug", x + 8, y - 8)
+        st.ladybug.angle = -math.pi/2
+        st.is_timer_started = true
+        st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(6, 9), collision.detect)
+    end
 end
 
 function st.initialize_gameboard()
@@ -138,7 +141,7 @@ function st.draw()
     gameboard.draw_extra_letters(st.extra_lit)
     gameboard.draw_bonus_multipliers(st.bonus_lit)
 
-    gameboard.draw_player_score(1, 0)
+    gameboard.draw_player_score(1)
     gameboard.draw_high_score("UNIVERSAL", 10000)
 
     love.graphics.setColor(0, 253/255, 3/255)

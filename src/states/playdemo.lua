@@ -144,7 +144,7 @@ function st.draw()
     gameboard.draw_extra_letters(st.extra_lit)
     gameboard.draw_bonus_multipliers(st.bonus_lit)
 
-    gameboard.draw_player_score(1, 0)
+    gameboard.draw_player_score(1)
     gameboard.draw_high_score("UNIVERSAL", 10000)
 
     love.graphics.print("GOOD LUCK", 64, 177)
