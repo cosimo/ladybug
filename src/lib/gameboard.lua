@@ -8,6 +8,8 @@ local gameboard = {
     gates = {},
     gate_entities = {},
 
+    player_score = 0,
+
     EMPTY = 0,
     DOT = 1,
     SKULL = 2,
@@ -41,6 +43,7 @@ function gameboard.clear()
     end
 end
 
+--noinspection LuaOverlyLongMethod
 function gameboard.random_initialize()
     local grid = gameboard.grid
     local gates = gameboard.gates
@@ -213,6 +216,12 @@ function gameboard.enemy(entity_name, x, y)
     enemy.angle = -math.pi/2
 end
 
+function gameboard.board_xy(screen_x, screen_y, entity_name)
+    local board_x = 1 + math.floor((screen_x - gameboard.offset.x) / gameboard.size.w)
+    local board_y = 1 + math.floor((screen_y - gameboard.offset.y) / gameboard.size.h)
+    return board_x, board_y
+end
+
 function gameboard.screen_xy(board_x, board_y, entity_name)
     local screen_x = gameboard.offset.x + board_x * gameboard.size.w
     local screen_y = gameboard.offset.y + board_y * gameboard.size.h
@@ -220,6 +229,9 @@ function gameboard.screen_xy(board_x, board_y, entity_name)
         screen_x = screen_x - 2
         screen_y = screen_y - 2
     elseif entity_name == "turnstile" then
+        screen_x = screen_x - 2
+        screen_y = screen_y - 2
+    elseif entity_name == "ladybug" then
         screen_x = screen_x - 2
         screen_y = screen_y - 2
     elseif entity_name ~= "dot" then
@@ -275,9 +287,9 @@ function gameboard.draw_special_letters(special_lit)
     end
 end
 
-function gameboard.draw_player_score(player, score)
+function gameboard.draw_player_score(player)
     local score_str = player == 1 and "1ST" or "2ND"
-    score_str = score_str .. "      " .. score
+    score_str = score_str .. string.format("%7d", gameboard.player_score)
     love.graphics.print(score_str, 112, 209)
 end
 
@@ -289,6 +301,26 @@ end
 function gameboard.draw_credits(credits)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("CREDIT " .. credits, 128, 233)
+end
+
+function gameboard.random_walk_from(board_start_x, board_start_y)
+    local xy = function(board_x, board_y)
+        return gameboard.screen_xy(board_x, board_y, "ladybug")
+    end
+
+    local walk = {
+        {0.5, "🛑"},
+        {nil, "↑", 1, {xy(board_start_x, board_start_y - 2)}},
+        {nil, "→", 1, {xy(board_start_x + 1, board_start_y - 2)}},
+        {nil, "↑", 1, {xy(board_start_x + 1, board_start_y - 4)}},
+        {nil, "→", 1, {xy(board_start_x + 2, board_start_y - 4)}},
+        {nil, "↓", 1, {xy(board_start_x + 2, board_start_y)}},
+        {nil, "→", 1, {xy(board_start_x + 5, board_start_y)}},
+        {nil, "↓", 1, {xy(board_start_x + 5, board_start_y + 2)}},
+        {nil, "←", 1, {xy(board_start_x, board_start_y + 2)}},
+        {nil, "↑", 1, {xy(board_start_x, board_start_y)}},
+    }
+    return walk
 end
 
 return gameboard
