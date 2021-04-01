@@ -179,6 +179,21 @@ function gameboard.place_entity(entity_name, x, y)
     return gameboard.grid[x][y]
 end
 
+function gameboard.place_enemy(enemy)
+    local x = 6
+    local y = 6
+
+    local static_enemy = gameboard.grid[x][y]
+    if static_enemy ~= nil then
+        static_enemy.delete = true
+    end
+
+    local enemy_entity = em.init(enemy, gameboard.screen_xy(x, y, enemy))
+    gameboard.grid[x][y] = enemy_entity
+
+    return enemy_entity
+end
+
 function gameboard.place_bonus(x, y)
     local screen_x, screen_y
     screen_x, screen_y = gameboard.screen_xy(x, y, "heart")
@@ -298,9 +313,37 @@ function gameboard.draw_high_score(player, score)
     love.graphics.print("TOP  " .. player .. "  " .. score, 24, 225)
 end
 
+function gameboard.draw_part(part_number)
+    love.graphics.setColor(6/255, 175/255, 1)
+    love.graphics.print("PART " .. string.format("%d", part_number), 72, 233)
+end
+
 function gameboard.draw_credits(credits)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("CREDIT " .. credits, 128, 233)
+end
+
+function gameboard.random_monster_walk_from(board_start_x, board_start_y)
+    local xy = function(board_x, board_y)
+        return gameboard.screen_xy(board_x, board_y, "beetle")
+    end
+
+    local monster_walk = {
+        {nil, "↑", 1, {xy(board_start_x, board_start_y - 5)}},
+        {nil, "→", 1, {xy(board_start_x + 5, board_start_y - 5)}},
+        {nil, "↓", 1, {xy(board_start_x + 5, board_start_y - 1)}},
+        {nil, "←", 1, {xy(board_start_x + 3, board_start_y - 1)}},
+        {nil, "↑", 1, {xy(board_start_x + 3, board_start_y - 2)}},
+        {nil, "←", 1, {xy(board_start_x + 1, board_start_y - 2)}},
+        {nil, "→", 1, {xy(board_start_x + 3, board_start_y - 2)}},
+        {nil, "↓", 1, {xy(board_start_x + 3, board_start_y - 1)}},
+        {nil, "→", 1, {xy(board_start_x + 5, board_start_y - 1)}},
+        {nil, "↑", 1, {xy(board_start_x + 5, board_start_y - 5)}},
+        {nil, "←", 1, {xy(board_start_x, board_start_y - 5)}},
+        {nil, "↓", 1, {xy(board_start_x, board_start_y)}},
+    }
+
+    return monster_walk
 end
 
 function gameboard.random_walk_from(board_start_x, board_start_y)
