@@ -41,6 +41,7 @@ function st.initialize_state()
 
     st.is_player_dead = false
     st.is_timer_started = false
+    st.can_monsters_move = false
 
     st.next_state = states.attractmode
 end
@@ -88,6 +89,7 @@ function st.spawn_ladybug(life_number, x, y)
 end
 
 function st.initialize_gameboard()
+    -- Also places the center enemy
     gameboard.random_initialize()
     timeblocks.initialize()
 end
@@ -129,6 +131,18 @@ function st.update(self, dt)
         timeblocks.update(dt)
     end
 
+    -- 12 seconds is how long it takes for the time blocks
+    -- to turn one full round from the start of the screen
+    if not self.can_monsters_move and
+            self.is_timer_started and
+            self.waited > 11.5 then
+        st.enemy = gameboard.place_enemy("beetle")
+        st.enemy.path = pathfinder.new_path(st.enemy,
+            gameboard.random_monster_walk_from(6, 6),
+            collision.detect)
+        self.can_monsters_move = true
+    end
+
     if self.is_player_dead then
         gs.switch(self.next_state)
     end
@@ -147,9 +161,7 @@ function st.draw()
     love.graphics.setColor(0, 253/255, 3/255)
     love.graphics.print("=1000", 24, 233)
 
-    love.graphics.setColor(6/255, 175/255, 1)
-    love.graphics.print("PART 1", 72, 233)
-
+    gameboard.draw_part(1)
     gameboard.draw_credits(st.credits)
 
     em.draw()
@@ -172,15 +184,6 @@ end
 
 function st.skull(x_pos, y_pos)
     return em.init("skull", x_pos, y_pos)
-end
-
-function st.heart(x_pos, y_pos)
-    local heart = em.init("heart", x_pos, y_pos)
-
-    -- All heart bonus icons are also static, no animation
-    heart.anim.temp.loop = animation.loop.NONE
-
-    return heart
 end
 
 function st.player_life(x_pos, y_pos)
