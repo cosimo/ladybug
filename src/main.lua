@@ -82,9 +82,12 @@ function love.update(dt)
 end
 
 function love.keypressed(k)
+    -- Pressing 'ESC' will quit the game
     if k == "escape" then
         love.event.quit()
     end
+
+    -- Pressing 'P' will toggle pause for the game, regardless of the state
     if k == "p" then
         paused = not paused
     end
