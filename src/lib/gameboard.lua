@@ -351,8 +351,16 @@ function gameboard.random_walk_from(board_start_x, board_start_y)
         return gameboard.screen_xy(board_x, board_y, "ladybug")
     end
 
-    local walk = {
-        {0.5, "🛑"},
+    local walk = {}
+
+    walk = {
+        -- {0.5, "🛑"},
+        {0.5, "🛑", nil, nil,
+            function()
+                return gameboard.generate_next_step(walk, board_start_x, board_start_y)
+            end
+        },
+        --[[
         {nil, "↑", 1, {xy(board_start_x, board_start_y - 2)}},
         {nil, "→", 1, {xy(board_start_x + 1, board_start_y - 2)}},
         {nil, "↑", 1, {xy(board_start_x + 1, board_start_y - 4)}},
@@ -362,8 +370,28 @@ function gameboard.random_walk_from(board_start_x, board_start_y)
         {nil, "↓", 1, {xy(board_start_x + 5, board_start_y + 2)}},
         {nil, "←", 1, {xy(board_start_x, board_start_y + 2)}},
         {nil, "↑", 1, {xy(board_start_x, board_start_y)}},
+        --]]
     }
+
     return walk
+end
+
+function gameboard.generate_next_step(walk_path, grid_current_x, grid_current_y)
+    local xy = function(board_x, board_y)
+        return gameboard.screen_xy(board_x, board_y, "ladybug")
+    end
+    table.insert(walk_path, {0.5, "🛑"})
+    table.insert(walk_path,
+        {
+            nil, "↓", 0.5, {xy(grid_current_x, grid_current_y + 2)},
+            function()
+                print(walk_path[1][2])
+                print(walk_path[2][2])
+                print(walk_path[3][2])
+                return gameboard.generate_next_step(walk_path, grid_current_x, grid_current_y + 2)
+            end
+        }
+    )
 end
 
 return gameboard

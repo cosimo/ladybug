@@ -156,7 +156,7 @@ function pathfinder.move(path)
     path.entity.angle = new_angle
 
     local changed_position = (prev_x ~= path.entity.x or prev_y ~= path.entity.y)
-    if path.callback and changed_position then
+    if path.callback and (action == "🛑" or changed_position) then
         path.callback(path.entity, path.entity.x, path.entity.y, prev_x, prev_y)
     end
 

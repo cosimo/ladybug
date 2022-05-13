@@ -84,7 +84,8 @@ function st.spawn_ladybug(life_number, x, y)
         st.ladybug = em.init("ladybug", x + 8, y - 8)
         st.ladybug.angle = -math.pi/2
         st.is_timer_started = true
-        st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(6, 9), collision.detect)
+        st.ladybug.path = pathfinder.new_path(
+            st.ladybug, gameboard.random_walk_from(6, 9), collision.detect)
     end
 end
 

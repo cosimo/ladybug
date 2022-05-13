@@ -74,7 +74,7 @@ function love.load()
     }
 
     gs.registerEvents()
-    gs.switch(states.diagnostics)
+    gs.switch(states.playdemo2)
 end
 
 function love.update(dt)
