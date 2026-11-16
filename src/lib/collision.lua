@@ -12,10 +12,20 @@ function collision.detect(entity, curr_screen_x, curr_screen_y, prev_screen_x, p
 end
 
 function collision.between(entity1, entity2, x, y)
-    if entity1.name == "ladybug" and entity2.delete == false then
+    if entity1.name ~= "ladybug" or entity2.delete then
+        return
+    end
+
+    if entity2.name == "dot" then
         entity2.delete = true
         gameboard.player_score = gameboard.player_score + 10
+        return
     end
+
+    -- TODO the ladybug walks over everything else for now. It should:
+    --   - die on a skull or an enemy
+    --   - collect a heart or a letter for bonus points, lighting up a
+    --     multiplier or a SPECIAL or EXTRA letter
 end
 
 -- Just for debugging
