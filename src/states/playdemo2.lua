@@ -1,5 +1,8 @@
 local st = {}
 
+-- Cell where the ladybug starts, at the bottom center of the maze
+local START_BOARD_X, START_BOARD_Y = 6, 9
+
 function st.init()
     st.input = baton.new {
         controls = {
@@ -44,12 +47,13 @@ function st.initialize_sprites()
         st.player_life(47, 216)
     }
 
-    local start_x = 96
-    local start_y = 176
+    local start_x, start_y = gameboard.cell_center(START_BOARD_X, START_BOARD_Y)
     local life = 3
 
     -- Animation from the static ladybug life at the bottom
-    -- to a dynamic sprite that will start moving
+    -- to a dynamic sprite that will start moving. As in the arcade, the
+    -- life walks up into the maze until the start cell, and turns into
+    -- the ladybug there.
     st.player_lives[life].path = pathfinder.new_path(st.player_lives[life], {
         {0.5, "🛑"},
         {nil, "→", 1, {start_x}},
@@ -66,10 +70,10 @@ end
 function st.spawn_ladybug(life_number, x, y)
     if not st.ladybug then
         st.player_lives[life_number].delete = true
-        st.ladybug = em.init("ladybug", x, y - 16)
+        st.ladybug = em.init("ladybug", x, y)
         st.ladybug.angle = -math.pi/2
         st.is_timer_started = true
-        st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(6, 9), collision.detect)
+        st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(START_BOARD_X, START_BOARD_Y), collision.detect)
     end
 end
 
