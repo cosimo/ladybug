@@ -34,7 +34,6 @@ function st.process_input()
 end
 
 function st.update(self, dt)
-    lovebird.update()
     self.waited = self.waited + dt
     self.input:update()
     self.process_input()

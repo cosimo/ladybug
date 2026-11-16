@@ -111,7 +111,6 @@ function st.check_boundaries(obj)
 end
 
 function st.update(self, dt)
-    lovebird.update()
     self.waited = self.waited + dt
     if self.waited > 5.0 then
         gs.switch(self.next_state)
