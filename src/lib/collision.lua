@@ -7,8 +7,8 @@ local TOUCH_DISTANCE = 0.5
 
 function collision.detect(entity, curr_screen_x, curr_screen_y, prev_screen_x, prev_screen_y)
     local board_x, board_y = gameboard.board_xy(curr_screen_x, curr_screen_y)
-    local board_element = gameboard.grid[board_x][board_y]
-    if board_element == 0 then
+    local board_element = gameboard.entities[board_x][board_y]
+    if board_element == nil then
         return
     end
 
@@ -28,7 +28,7 @@ function collision.between(entity1, entity2, x, y)
     end
 
     if entity2.name == "dot" then
-        entity2.delete = true
+        gameboard.clear_cell(gameboard.board_xy(entity2.x, entity2.y))
         gameboard.player_score = gameboard.player_score + 10
         return
     end

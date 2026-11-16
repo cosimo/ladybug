@@ -1,6 +1,9 @@
 local gameboard = {
     size = {x=11, y=11, w=16, h=16},
 
+    -- grid[x][y] is what sits on each cell, one of the constants below.
+    -- entities[x][y] is the sprite drawn for it, nil for an empty cell.
+
     -- Screen position of the top left corner of cell (1, 1)
     top_left = {x=8, y=25},
 
@@ -177,57 +180,67 @@ function gameboard.place_turnstile(direction, x, y)
 end
 
 function gameboard.place_entity(entity_name, x, y)
-    gameboard.grid[x][y] = em.init(entity_name, gameboard.cell_center(x, y))
-    gameboard.grid[x][y].anim.temp.speed = 0
-    return gameboard.grid[x][y]
+    local entity = em.init(entity_name, gameboard.cell_center(x, y))
+    entity.anim.temp.speed = 0
+    return entity
 end
 
+-- Removes whatever sits on a cell, and its sprite, leaving the cell empty
+function gameboard.clear_cell(x, y)
+    local entity = gameboard.entities[x][y]
+    if entity ~= nil then
+        entity.delete = true
+    end
+
+    gameboard.entities[x][y] = nil
+    gameboard.grid[x][y] = gameboard.EMPTY
+end
+
+-- Releases the enemy waiting in the center cell. The board forgets about
+-- it, from now on the enemy moves on its own path.
 function gameboard.place_enemy(enemy)
     local x = 6
     local y = 6
 
-    local static_enemy = gameboard.grid[x][y]
-    if static_enemy ~= nil then
-        static_enemy.delete = true
-    end
+    gameboard.clear_cell(x, y)
 
-    local enemy_entity = em.init(enemy, gameboard.cell_center(x, y))
-    gameboard.grid[x][y] = enemy_entity
-
-    return enemy_entity
+    return em.init(enemy, gameboard.cell_center(x, y))
 end
 
 function gameboard.place_bonus(x, y)
-    gameboard.grid[x][y] = em.init("heart", gameboard.cell_center(x, y))
-    gameboard.grid[x][y].anim.temp.speed = 0
-    gameboard.grid[x][y].anim.frame = 2
+    local heart = em.init("heart", gameboard.cell_center(x, y))
+    heart.anim.temp.speed = 0
+    heart.anim.frame = 2
+    return heart
 end
 
 function gameboard.place_letter(letter, x, y)
-    gameboard.grid[x][y] = em.init_with_type("letter", letter, gameboard.cell_center(x, y))
-    gameboard.grid[x][y].anim.temp.speed = 0
-    gameboard.grid[x][y].anim.frame = 2
+    local letter_entity = em.init_with_type("letter", letter, gameboard.cell_center(x, y))
+    letter_entity.anim.temp.speed = 0
+    letter_entity.anim.frame = 2
+    return letter_entity
 end
 
 function gameboard.bonus(x, y)
-    gameboard.place_bonus(x, y)
+    return gameboard.place_bonus(x, y)
 end
 
 function gameboard.letter(letter, x, y)
-    gameboard.place_letter(letter, x, y)
+    return gameboard.place_letter(letter, x, y)
 end
 
 function gameboard.dot(x, y)
-    gameboard.place_entity("dot", x, y)
+    return gameboard.place_entity("dot", x, y)
 end
 
 function gameboard.skull(x, y)
-    gameboard.place_entity("skull", x, y)
+    return gameboard.place_entity("skull", x, y)
 end
 
 function gameboard.enemy(entity_name, x, y)
     local enemy = gameboard.place_entity(entity_name, x, y)
     enemy.angle = -math.pi/2
+    return enemy
 end
 
 -- Returns the cell that contains the screen point x, y
