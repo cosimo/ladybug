@@ -271,9 +271,9 @@ end
 function st.draw()
     push:start()
 
-    st.draw_special_letters()
-    st.draw_extra_letters()
-    st.draw_bonus_multipliers()
+    gameboard.draw_special_letters(st.special_lit)
+    gameboard.draw_extra_letters(st.extra_lit)
+    gameboard.draw_bonus_multipliers(st.bonus_lit)
 
     love.graphics.print("1ST      0", 112, 209)
 
@@ -305,51 +305,6 @@ function st.draw()
 
     em.draw()
     push:finish()
-end
-
-function st.draw_bonus_multipliers()
-    local x = 136
-    local y = 9
-
-    local multipliers = {"2", "3", "5"}
-    for i, mul in ipairs(multipliers) do
-        if st.bonus_lit[mul] == true then
-            love.graphics.setColor(0.25, 0.6, 1)
-        else
-            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-        end
-        love.graphics.print("×" .. mul, x + 16 * (i - 1), y)
-    end
-end
-
-function st.draw_extra_letters()
-    local x = 80
-    local y = 9
-
-    local letters = {"E", "X", "T", "R", "A"}
-    for i, letter in ipairs(letters) do
-        if st.extra_lit[letter] == true then
-            love.graphics.setColor(1, 1, 0)
-        else
-            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-        end
-        love.graphics.print(letter, x + 8 * (i - 1), y)
-    end
-end
-
-function st.draw_special_letters()
-    local x = 8
-    local y = 9
-
-    local letters = {"S", "P", "E", "C", "I", "A", "L"}
-    for i, letter in ipairs(letters) do
-        if st.special_lit[letter] == true then
-            love.graphics.setColor(1, 0, 0)
-        else
-            love.graphics.setColor(0xae/255, 0xab/255, 0xae/255)
-        end
-        love.graphics.print(letter, x + 8 * (i - 1), y)
-    end
 end
 
 return st
