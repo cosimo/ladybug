@@ -16,7 +16,7 @@ function st.resume()
 end
 
 function st.update(self, dt)
-    self.waited = st.waited + dt
+    self.waited = self.waited + dt
     if self.waited > 2 then
         gs.switch(self.next_state)
     end
