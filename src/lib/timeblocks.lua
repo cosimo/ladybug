@@ -1,10 +1,16 @@
+-- Seconds the timer takes to go all around the border once. Measured on
+-- the level 1 play demo in the MAME capture: the first block lights up at
+-- about 0:49.9, and the lap completes at about 1:04.6.
+local LAP_SECONDS = 14.6
+
 local timeblocks = {
     -- Blocks are numbered from 1, where the first block that
     -- turns on after the timer starts is the top center block
     blocks = {},
     size = 92,
-    start_time = 0,
-    last_dt = 0,
+
+    -- How far the timer went, in blocks, since it started
+    elapsed_blocks = 0,
 
     -- Block states
     OFF = 0,
@@ -28,8 +34,7 @@ end
 function timeblocks.initialize()
     timeblocks.clear()
 
-    timeblocks.start_time = 0
-    timeblocks.last_dt = 0
+    timeblocks.elapsed_blocks = 0
     timeblocks.last_block = nil
 
     local blocks = timeblocks.blocks
@@ -40,14 +45,10 @@ function timeblocks.initialize()
 end
 
 function timeblocks.update(dt)
-    if timeblocks.start_time == 0 then
-        timeblocks.start_time = dt
-        timeblocks.last_dt = dt
-    else
-        timeblocks.last_dt = timeblocks.last_dt + dt * 10
-    end
+    local blocks_per_second = timeblocks.size / LAP_SECONDS
+    timeblocks.elapsed_blocks = timeblocks.elapsed_blocks + dt * blocks_per_second
 
-    local block_index = (math.floor(timeblocks.last_dt) % timeblocks.size) + 1
+    local block_index = (math.floor(timeblocks.elapsed_blocks) % timeblocks.size) + 1
 
     if block_index ~= timeblocks.last_block then
         local current_state = timeblocks.blocks[block_index]
@@ -56,6 +57,11 @@ function timeblocks.update(dt)
         timeblocks.blocks[block_index] = next_state
         timeblocks.last_block = block_index
     end
+end
+
+-- Returns how many times the timer went all around the border
+function timeblocks.laps()
+    return math.floor(timeblocks.elapsed_blocks / timeblocks.size)
 end
 
 function timeblocks.render()

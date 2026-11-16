@@ -118,11 +118,9 @@ function st.update(self, dt)
         timeblocks.update(dt)
     end
 
-    -- 12 seconds is how long it takes for the time blocks
-    -- to turn one full round from the start of the screen
-    if not self.can_monsters_move and
-            self.is_timer_started and
-            self.waited > 11.5 then
+    -- As in the arcade, the beetle leaves the center when the timer
+    -- completes its first lap
+    if not self.can_monsters_move and timeblocks.laps() >= 1 then
         st.enemy = gameboard.place_enemy("beetle")
         st.enemy.path = pathfinder.new_path(st.enemy,
             gameboard.random_monster_walk_from(6, 6),
