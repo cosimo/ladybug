@@ -43,6 +43,10 @@ function st.initialize_state()
     st.is_timer_started = false
     st.can_monsters_move = false
 
+    -- spawn_ladybug() only spawns while there is no ladybug yet
+    st.ladybug = nil
+    st.enemy = nil
+
     st.next_state = states.attractmode
 end
 
