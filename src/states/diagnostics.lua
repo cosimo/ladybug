@@ -23,10 +23,10 @@ function st.update(self, dt)
 end
 
 function st.draw()
-    memory_check()
+    st.memory_check()
 end
 
-function memory_check()
+function st.memory_check()
     push:start()
     love.graphics.setColor(0xfc/255, 0xb2/255, 0xf2/255)
     love.graphics.print("ROM OK", 72, 90)
