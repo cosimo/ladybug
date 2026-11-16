@@ -209,6 +209,24 @@ function maze.can_move(m, x, y, direction, can_push)
     return blocked_by == "turnstile" and can_push == true
 end
 
+-- Returns the lane closest to value, when value is at most tolerance pixels
+-- away from it, or nil. Lanes are every spacing pixels through first_lane.
+-- A sprite moves along a corridor only while it is on the corridor's lane,
+-- and snapping lets the player turn a few pixels early or late.
+function maze.snap_to_lane(value, first_lane, spacing, tolerance)
+    local past_lane = (value - first_lane) % spacing
+    if past_lane <= tolerance then
+        return value - past_lane
+    end
+
+    local before_lane = spacing - past_lane
+    if before_lane <= tolerance then
+        return value + before_lane
+    end
+
+    return nil
+end
+
 -- Returns the maze after moving from cell (x, y) in direction. A turnstile
 -- in the way turns a quarter turn, the maze passed in stays as it is.
 function maze.push(m, x, y, direction)

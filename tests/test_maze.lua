@@ -120,6 +120,29 @@ function tests.test_nobody_moves_through_walls_or_the_border()
     assert(maze.can_move(small, 1, 1, "↓", false), "open edge refused to an enemy")
 end
 
+-- Lanes every 16 pixels from 8, as on the attract mode screen, and a
+-- sprite snaps onto one from up to 4 pixels away
+local FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE = 8, 16, 4
+
+function tests.test_snap_to_lane_keeps_a_value_on_a_lane()
+    assert(maze.snap_to_lane(8, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE) == 8, "first lane")
+    assert(maze.snap_to_lane(40, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE) == 40, "third lane")
+end
+
+function tests.test_snap_to_lane_pulls_a_close_value_onto_the_lane()
+    assert(maze.snap_to_lane(44, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE) == 40, "4 pixels past the lane")
+    assert(maze.snap_to_lane(36, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE) == 40, "4 pixels before the lane")
+    assert(maze.snap_to_lane(5, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE) == 8, "before the first lane")
+end
+
+function tests.test_snap_to_lane_refuses_a_value_between_lanes()
+    local between_lanes = 45
+
+    local snapped = maze.snap_to_lane(between_lanes, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE)
+
+    assert(snapped == nil, "45 is 5 pixels from both lanes, snapped to " .. tostring(snapped))
+end
+
 function tests.test_level1_is_11_by_11()
     local level1 = maze.parse(require "levels.level1")
 
