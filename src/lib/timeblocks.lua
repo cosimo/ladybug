@@ -28,6 +28,10 @@ end
 function timeblocks.initialize()
     timeblocks.clear()
 
+    timeblocks.start_time = 0
+    timeblocks.last_dt = 0
+    timeblocks.last_block = nil
+
     local blocks = timeblocks.blocks
 
     for i = 1, timeblocks.size do
