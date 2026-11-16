@@ -12,28 +12,9 @@ function st.init()
 end
 
 function st.initialize_state()
-    st.extra_lit = {
-        E = false,
-        X = false,
-        T = false,
-        R = false,
-        A = false,
-    }
-
-    st.special_lit = {
-        S = false,
-        P = false,
-        E = false,
-        C = false,
-        I = false,
-        A = false,
-        L = false,
-    }
-
-    st.bonus_lit = {}
-    st.bonus_lit["2"] = false
-    st.bonus_lit["3"] = false
-    st.bonus_lit["5"] = false
+    st.extra_lit = gameboard.all_unlit("EXTRA")
+    st.special_lit = gameboard.all_unlit("SPECIAL")
+    st.bonus_lit = gameboard.all_unlit("235")
 
     st.credits = 0
     st.waited = 0.0

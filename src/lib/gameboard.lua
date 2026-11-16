@@ -262,6 +262,17 @@ function gameboard.screen_xy(board_x, board_y, entity_name)
     return screen_x, screen_y
 end
 
+-- Returns a table with every character of the string turned off, as in
+-- all_unlit("EXTRA") -> {E = false, X = false, T = false, R = false, A = false}
+-- for the SPECIAL and EXTRA letters and the multipliers ("235") at the top
+function gameboard.all_unlit(characters)
+    local lit = {}
+    for character in characters:gmatch(".") do
+        lit[character] = false
+    end
+    return lit
+end
+
 function gameboard.draw_bonus_multipliers(bonus_lit)
     local x = 136
     local y = 9
