@@ -34,16 +34,17 @@ end
 
 function helpers.makeline(x1, y1, x2, y2)
     local linepoints = {}
-    delta_x = x2 - x1
-    ix = delta_x > 0 and 1 or -1
+    local delta_x = x2 - x1
+    local ix = delta_x > 0 and 1 or -1
     delta_x = 2 * math.abs(delta_x)
    
-    delta_y = y2 - y1
-    iy = delta_y > 0 and 1 or -1
+    local delta_y = y2 - y1
+    local iy = delta_y > 0 and 1 or -1
     delta_y = 2 * math.abs(delta_y)
  
     table.insert(linepoints,{x1,y1})
  
+    local err
     if delta_x >= delta_y then
         err = delta_y - delta_x / 2
       

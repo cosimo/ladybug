@@ -30,7 +30,7 @@ function ezanim.newtemplate(png, width, speed, border, loop)
 
   if t.loop ~= ezanim.loop.NONE then
       for i = 0, t.frames - 1 do
-          quad = love.graphics.newQuad(i * t.width + offset, 0 , t.width, t.height, t.img:getWidth(), t.img:getHeight())
+          local quad = love.graphics.newQuad(i * t.width + offset, 0 , t.width, t.height, t.img:getWidth(), t.img:getHeight())
           table.insert(t.quads, quad)
           offset = offset + t.border
       end
@@ -38,7 +38,7 @@ function ezanim.newtemplate(png, width, speed, border, loop)
 
   if t.loop == ezanim.loop.PENDULUM then
       for i = t.frames - 2, 1, -1 do
-        quad = love.graphics.newQuad(i * t.width + offset, 0 , t.width, t.height, t.img:getWidth(), t.img:getHeight())
+        local quad = love.graphics.newQuad(i * t.width + offset, 0 , t.width, t.height, t.img:getWidth(), t.img:getHeight())
         table.insert(t.quads, quad)
         offset = offset - t.border
         t.frames = t.frames + 1
@@ -61,7 +61,7 @@ function ezanim.animupdate(a,dt)
   a.time = a.time + dt
   if a.temp.loop ~= ezanim.loop.NONE and a.temp.speed ~= 0 then
     if a.time >= a.temp.speed then
-      framesmissed = math.floor(a.time / a.temp.speed)
+      local framesmissed = math.floor(a.time / a.temp.speed)
       a.frame = a.frame + framesmissed
       a.time = a.time - framesmissed * a.temp.speed
     end
@@ -87,7 +87,7 @@ function ezanim.animdraw(a,x,y,r,sx,sy,ox,oy,kx,ky)
   oy = oy or 0
   kx = kx or 0
   ky = ky or 0
-  quad = a.temp.quads[a.frame]
+  local quad = a.temp.quads[a.frame]
   if a.temp.type == "4color" then
     for i=1,4 do
       love.graphics.setColor(colors[i])
