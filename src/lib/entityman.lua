@@ -62,8 +62,9 @@ function em.draw()
 
   em.deep.execute()
 
-  for i,v in ipairs(em.entities) do
-      if v.delete then
+  -- Walk backwards, so removing an entity doesn't skip the one after it
+  for i = #em.entities, 1, -1 do
+      if em.entities[i].delete then
           table.remove(em.entities, i)
       end
   end
