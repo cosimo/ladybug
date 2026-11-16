@@ -1,16 +1,20 @@
+local maze = require "lib.maze"
+local LEVEL1_MAZE = require "levels.level1"
+
 local gameboard = {
     size = {x=11, y=11, w=16, h=16},
-
-    -- grid[x][y] is what sits on each cell, one of the constants below.
-    -- entities[x][y] is the sprite drawn for it, nil for an empty cell.
 
     -- Screen position of the top left corner of cell (1, 1)
     top_left = {x=8, y=25},
 
+    -- grid[x][y] is what sits on each cell, one of the constants below.
+    -- entities[x][y] is the sprite drawn for it, nil for an empty cell.
     grid = {},
     entities = {},
 
-    gates = {},
+    -- Walls and turnstiles of the current level, from lib/maze.lua, and
+    -- the turnstile sprites, gate_entities[x][y] for turnstile (x, y)
+    maze = nil,
     gate_entities = {},
 
     player_score = 0,
@@ -19,8 +23,6 @@ local gameboard = {
     DOT = 1,
     SKULL = 2,
     BONUS = 3,
-    TURNSTILE_H = 4,
-    TURNSTILE_V = 5,
 
     LETTER_S = 10,
     LETTER_P = 11,
@@ -47,8 +49,8 @@ end
 function gameboard.clear()
     empty_table(gameboard.grid)
     empty_table(gameboard.entities)
-    empty_table(gameboard.gates)
     empty_table(gameboard.gate_entities)
+    gameboard.maze = nil
     gameboard.player_score = 0
 end
 
@@ -57,19 +59,12 @@ function gameboard.random_initialize()
     gameboard.clear()
 
     local grid = gameboard.grid
-    local gates = gameboard.gates
+    gameboard.maze = maze.parse(LEVEL1_MAZE)
 
     for x = 1, gameboard.size.x do
         grid[x] = {}
         for y = 1, gameboard.size.y do
             grid[x][y] = gameboard.DOT
-        end
-    end
-
-    for x = 1, gameboard.size.x - 1 do
-        gates[x] = {}
-        for y = 1, gameboard.size.y - 1 do
-            gates[x][y] = nil
         end
     end
 
@@ -92,35 +87,6 @@ function gameboard.random_initialize()
     grid[6][9] = gameboard.EMPTY
     grid[6][10] = gameboard.EMPTY
     grid[6][11] = gameboard.EMPTY
-
-    -- Turnstile states
-    gates[2][1] = gameboard.TURNSTILE_H
-    gates[9][1] = gameboard.TURNSTILE_H
-
-    gates[4][2] = gameboard.TURNSTILE_V
-    gates[7][2] = gameboard.TURNSTILE_V
-
-    gates[1][3] = gameboard.TURNSTILE_V
-    gates[3][3] = gameboard.TURNSTILE_H
-    gates[8][3] = gameboard.TURNSTILE_H
-    gates[10][3] = gameboard.TURNSTILE_V
-
-    gates[4][4] = gameboard.TURNSTILE_H
-    gates[7][4] = gameboard.TURNSTILE_H
-
-    gates[3][6] = gameboard.TURNSTILE_V
-    gates[8][6] = gameboard.TURNSTILE_V
-
-    gates[2][7] = gameboard.TURNSTILE_V
-    gates[4][7] = gameboard.TURNSTILE_V
-    gates[7][7] = gameboard.TURNSTILE_V
-    gates[9][7] = gameboard.TURNSTILE_V
-
-    gates[4][9] = gameboard.TURNSTILE_H
-    gates[7][9] = gameboard.TURNSTILE_H
-
-    gates[2][10] = gameboard.TURNSTILE_H
-    gates[9][10] = gameboard.TURNSTILE_H
 
     gameboard.render()
 end
@@ -153,22 +119,23 @@ function gameboard.render()
         end
     end
 
+    local turnstiles = gameboard.maze.turnstiles
+
     for x = 1, gameboard.size.x - 1 do
-        if gameboard.gates[x] == nil then
-            gameboard.gates[x] = {}
-        end
         for y = 1, gameboard.size.y - 1 do
-            local turnstile_direction = gameboard.gates[x][y]
-            if turnstile_direction ~= nil then
-                gameboard.place_turnstile(turnstile_direction, x, y)
+            local orientation = turnstiles[x][y]
+            if orientation ~= nil then
+                gameboard.place_turnstile(orientation, x, y)
             end
         end
     end
 end
 
-function gameboard.place_turnstile(direction, x, y)
+-- Places the sprite of turnstile (x, y), "H" for horizontal or "V" for
+-- vertical
+function gameboard.place_turnstile(orientation, x, y)
     local ent = em.init("turnstile", gameboard.gate_center(x, y))
-    if direction == gameboard.TURNSTILE_V then
+    if orientation == "V" then
         ent.angle = -math.pi/2
     end
     ent.anim.temp.speed = 0
