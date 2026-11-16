@@ -4,7 +4,6 @@ function collision.detect(entity, curr_screen_x, curr_screen_y, prev_screen_x, p
     local board_x, board_y = gameboard.board_xy(curr_screen_x, curr_screen_y, entity.name)
     local board_element = gameboard.grid[board_x][board_y]
     if board_element ~= 0 then
-        print(curr_screen_x, curr_screen_y, board_element.x, board_element.y)
         if math.abs(curr_screen_x - board_element.x) <= 2
                 and math.abs(curr_screen_y - board_element.y) <= 2 then
             collision.between(entity, board_element, curr_screen_x, curr_screen_y)
