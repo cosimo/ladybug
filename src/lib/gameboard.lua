@@ -31,20 +31,26 @@ local gameboard = {
     BEETLE = 20,
 }
 
+-- Empties a table in place. pairs() rather than the # operator, because
+-- gate_entities has holes: there are no turnstiles in columns 5 and 6.
+local function empty_table(t)
+    for key in pairs(t) do
+        t[key] = nil
+    end
+end
+
 function gameboard.clear()
-    while #gameboard.grid ~= 0 do
-        rawset(gameboard.grid, #gameboard.grid, nil)
-    end
-    while #gameboard.entities ~= 0 do
-        rawset(gameboard.entities, #gameboard.entities, nil)
-    end
-    while #gameboard.gates ~= 0 do
-        rawset(gameboard.gates, #gameboard.gates, nil)
-    end
+    empty_table(gameboard.grid)
+    empty_table(gameboard.entities)
+    empty_table(gameboard.gates)
+    empty_table(gameboard.gate_entities)
+    gameboard.player_score = 0
 end
 
 --noinspection LuaOverlyLongMethod
 function gameboard.random_initialize()
+    gameboard.clear()
+
     local grid = gameboard.grid
     local gates = gameboard.gates
 
