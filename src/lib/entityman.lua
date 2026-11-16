@@ -52,6 +52,7 @@ function em.update(dt)
         for i, v in ipairs(em.entities) do
             em.deep.queue(v.uplayer, em.update2, v, dt)
         end
+        em.deep.execute()
     end
 end
 
