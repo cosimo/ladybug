@@ -47,13 +47,13 @@ function em.init_with_type(en, type_, x, y)
     return em.entities[#em.entities]
 end
 
+-- No pause check needed here, lib/gamestate.lua doesn't call the state
+-- update() at all while the game is paused
 function em.update(dt)
-    if not paused then
-        for i, v in ipairs(em.entities) do
-            em.deep.queue(v.uplayer, em.update2, v, dt)
-        end
-        em.deep.execute()
+    for i, v in ipairs(em.entities) do
+        em.deep.queue(v.uplayer, em.update2, v, dt)
     end
+    em.deep.execute()
 end
 
 function em.draw()
