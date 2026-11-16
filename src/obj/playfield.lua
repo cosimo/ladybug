@@ -3,7 +3,7 @@
 local obj = {
     layer = -9,
     uplayer = 9,
-    image = love.graphics.newImage("assets/obj/playfield.png"),
+    image = animation.image("obj/playfield"),
     initialized = false,
     delete = false,
     x = 0,

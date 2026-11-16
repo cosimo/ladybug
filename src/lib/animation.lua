@@ -8,6 +8,19 @@ local ezanim = {
     }
 }
 
+-- Images loaded so far, by path. Each entity gets its own template, since
+-- states change anim.temp on single entities, but entities of the same
+-- kind can share the image. All the dots on the board use one image.
+local images = {}
+
+-- Returns the image at assets/<png>.png, loading it only the first time
+function ezanim.image(png)
+  if images[png] == nil then
+    images[png] = love.graphics.newImage("assets/" .. png .. ".png")
+  end
+  return images[png]
+end
+
 function ezanim.newtemplate(png, width, speed, border, loop)
   local t = {}
 
@@ -21,7 +34,7 @@ function ezanim.newtemplate(png, width, speed, border, loop)
     t.loop = loop
   end
 
-  t.img = love.graphics.newImage("assets/" .. png .. ".png")
+  t.img = ezanim.image(png)
   t.height = t.img:getHeight()
   t.frames = t.img:getWidth()/(width + t.border)
   t.quads = {}
