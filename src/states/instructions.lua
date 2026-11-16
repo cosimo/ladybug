@@ -26,8 +26,8 @@ end
 function st.initialize_sprites()
     st.playfield = em.init("playfield")
 
-    local y_start = 69
-    local x_start = 52
+    local y_start = 65
+    local x_start = 48
     local x_step = 16
 
     st.extra_row = {
@@ -62,116 +62,116 @@ function st.initialize_sprites()
     y_start = y_start + 3 * 8
 
     st.others = {
-        st.dot(x_start - 2, y_start - 2),
+        st.dot(x_start, y_start),
         st.letter("x", x_start, y_start + 24)
     }
-    st.insect = em.init("insect", 21, 237)
+    st.insect = em.init("insect", 16, 232)
 
-    y_start = 69
-    x_start = 52
+    y_start = 65
+    x_start = 48
     x_step = 16
 
-    st.ladybug = em.init("ladybug", 16, y_start - 5)
+    st.ladybug = em.init("ladybug", 16, y_start - 1)
     st.ladybug.path = pathfinder.new_path(st.ladybug, {
 
         -- first row: EXTRA
 
         {2, "🛑"},
-        {nil, "→", 1, {x_start - 4},
+        {nil, "→", 1, {x_start},
          function()
              st.extra_row[1].delete = true
              st.extra_lit["E"] = true
          end
         },
         {3.5, "🛑"},
-        {nil, "→", 1, {x_start + x_step - 4},
+        {nil, "→", 1, {x_start + x_step},
          function()
              st.extra_row[2].delete = true
              st.extra_lit["X"] = true
          end
         },
         {5, "🛑"},
-        {nil, "→", 1, {x_start + 2 * x_step - 4},
+        {nil, "→", 1, {x_start + 2 * x_step},
          function()
              st.extra_row[3].delete = true
              st.extra_lit["T"] = true
          end
         },
         {6.5, "🛑"},
-        {nil, "→", 1, {x_start + 3 * x_step - 4},
+        {nil, "→", 1, {x_start + 3 * x_step},
          function()
              st.extra_row[4].delete = true
              st.extra_lit["R"] = true
          end
         },
         {8, "🛑"},
-        {nil, "→", 1, {x_start + 4 * x_step - 4},
+        {nil, "→", 1, {x_start + 4 * x_step},
          function()
              st.extra_row[5].delete = true
              st.extra_lit["A"] = true
-             st.extra_ladybug = em.init("ladybug", x_start + 7.5 * x_step - 4, 69 - 5)
+             st.extra_ladybug = em.init("ladybug", x_start + 7.5 * x_step, y_start - 1)
          end
         },
         {9.5, "🛑"},
 
         -- second row: SPECIAL
 
-        {12, "⚡", 16, y_start + (3 * 8) - 5},
-        {nil, "→", 1, {x_start - 4},
+        {12, "⚡", 16, y_start + (3 * 8) - 1},
+        {nil, "→", 1, {x_start},
          function()
              st.special_row[1].delete = true
              st.special_lit["S"] = true
          end
         },
         {13.5, "🛑"},
-        {nil, "→", 1, {x_start + x_step - 4},
+        {nil, "→", 1, {x_start + x_step},
          function()
              st.special_row[2].delete = true
              st.special_lit["P"] = true
          end
         },
         {15, "🛑"},
-        {nil, "→", 1, {x_start + 2 * x_step - 4},
+        {nil, "→", 1, {x_start + 2 * x_step},
          function()
              st.special_row[3].delete = true
              st.special_lit["E"] = true
          end
         },
         {16.5, "🛑"},
-        {nil, "→", 1, {x_start + 3 * x_step - 4},
+        {nil, "→", 1, {x_start + 3 * x_step},
          function()
              st.special_row[4].delete = true
              st.special_lit["C"] = true
          end
         },
         {18, "🛑"},
-        {nil, "→", 1, {x_start + 4 * x_step - 4},
+        {nil, "→", 1, {x_start + 4 * x_step},
          function()
              st.special_row[5].delete = true
              st.special_lit["I"] = true
          end
         },
         {19.5, "🛑"},
-        {nil, "→", 1, {x_start + 5 * x_step - 4},
+        {nil, "→", 1, {x_start + 5 * x_step},
          function()
              st.special_row[6].delete = true
              st.special_lit["A"] = true
          end
         },
         {21, "🛑"},
-        {nil, "→", 1, {x_start + 6 * x_step - 4},
+        {nil, "→", 1, {x_start + 6 * x_step},
          function()
              st.special_row[7].delete = true
              st.special_lit["L"] = true
              st.special_dollar = em.init("coin",
-                     x_start + 7.5 * x_step - 12, 69 + 24 - 13)
+                     x_start + 7.5 * x_step, y_start + 24 - 1)
          end
         },
 
         -- third row: hearts
 
-        {23.5, "⚡", 16, y_start + (6 * 8) - 5},
-        {nil, "→", 1, {x_start - 4},
+        {23.5, "⚡", 16, y_start + (6 * 8) - 1},
+        {nil, "→", 1, {x_start},
          function()
              st.hearts_row[1].delete = true
              st.bonus_lit["2"] = true
@@ -179,7 +179,7 @@ function st.initialize_sprites()
         },
 
         {25, "🛑"},
-        {nil, "→", 1, {x_start + 2 * x_step - 4},
+        {nil, "→", 1, {x_start + 2 * x_step},
          function()
              st.hearts_row[2].delete = true
              st.bonus_lit["3"] = true
@@ -187,7 +187,7 @@ function st.initialize_sprites()
         },
 
         {26.5, "🛑"},
-        {nil, "→", 1, {x_start + 4 * x_step - 4},
+        {nil, "→", 1, {x_start + 4 * x_step},
          function()
              st.hearts_row[3].delete = true
              st.bonus_lit["5"] = true
@@ -195,11 +195,11 @@ function st.initialize_sprites()
         },
 
         {28, "🛑"},
-        {nil, "→", 1, {x_start + 7.5 * x_step - 4},
+        {nil, "→", 1, {x_start + 7.5 * x_step},
          function()
              st.ladybug.delete = true
              st.hearts_row[4].delete = true   -- skull
-             st.ladybug_ghost = em.init("ghost", x_start + 7.5 * x_step - 4, 69 + 48 - 4)
+             st.ladybug_ghost = em.init("ghost", x_start + 7.5 * x_step, y_start + 48)
          end
         },
     })

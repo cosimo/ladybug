@@ -35,17 +35,17 @@ function st.initialize_sprites()
     st.playfield = em.init("playfield_level1")
 
     st.low_hanging_fruit = {
-        em.init("cucumber", 8, 224)
+        em.init("cucumber", 16, 232)
     }
 
     st.player_lives = {
-        st.player_life(7, 208),
-        st.player_life(23, 208),
-        st.player_life(39, 208)
+        st.player_life(15, 216),
+        st.player_life(31, 216),
+        st.player_life(47, 216)
     }
 
-    local start_x = 88
-    local start_y = 168
+    local start_x = 96
+    local start_y = 176
     local life = 3
 
     -- Animation from the static ladybug life at the bottom
@@ -66,7 +66,7 @@ end
 function st.spawn_ladybug(life_number, x, y)
     if not st.ladybug then
         st.player_lives[life_number].delete = true
-        st.ladybug = em.init("ladybug", x + 8, y - 8)
+        st.ladybug = em.init("ladybug", x, y - 16)
         st.ladybug.angle = -math.pi/2
         st.is_timer_started = true
         st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(6, 9), collision.detect)

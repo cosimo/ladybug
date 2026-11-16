@@ -1,6 +1,8 @@
 local gameboard = {
     size = {x=11, y=11, w=16, h=16},
-    offset = {x=2, y=19},
+
+    -- Screen position of the top left corner of cell (1, 1)
+    top_left = {x=8, y=25},
 
     grid = {},
     entities = {},
@@ -162,12 +164,9 @@ function gameboard.render()
 end
 
 function gameboard.place_turnstile(direction, x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, "turnstile")
-    local ent = em.init("turnstile", screen_x, screen_y)
+    local ent = em.init("turnstile", gameboard.gate_center(x, y))
     if direction == gameboard.TURNSTILE_V then
         ent.angle = -math.pi/2
-        ent.y = ent.y + 16
     end
     ent.anim.temp.speed = 0
     if gameboard.gate_entities[x] == nil then
@@ -178,9 +177,7 @@ function gameboard.place_turnstile(direction, x, y)
 end
 
 function gameboard.place_entity(entity_name, x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, entity_name)
-    gameboard.grid[x][y] = em.init(entity_name, screen_x, screen_y)
+    gameboard.grid[x][y] = em.init(entity_name, gameboard.cell_center(x, y))
     gameboard.grid[x][y].anim.temp.speed = 0
     return gameboard.grid[x][y]
 end
@@ -194,24 +191,20 @@ function gameboard.place_enemy(enemy)
         static_enemy.delete = true
     end
 
-    local enemy_entity = em.init(enemy, gameboard.screen_xy(x, y, enemy))
+    local enemy_entity = em.init(enemy, gameboard.cell_center(x, y))
     gameboard.grid[x][y] = enemy_entity
 
     return enemy_entity
 end
 
 function gameboard.place_bonus(x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, "heart")
-    gameboard.grid[x][y] = em.init("heart", screen_x, screen_y)
+    gameboard.grid[x][y] = em.init("heart", gameboard.cell_center(x, y))
     gameboard.grid[x][y].anim.temp.speed = 0
     gameboard.grid[x][y].anim.frame = 2
 end
 
 function gameboard.place_letter(letter, x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, "letter")
-    gameboard.grid[x][y] = em.init_with_type("letter", letter, screen_x, screen_y)
+    gameboard.grid[x][y] = em.init_with_type("letter", letter, gameboard.cell_center(x, y))
     gameboard.grid[x][y].anim.temp.speed = 0
     gameboard.grid[x][y].anim.frame = 2
 end
@@ -237,29 +230,26 @@ function gameboard.enemy(entity_name, x, y)
     enemy.angle = -math.pi/2
 end
 
-function gameboard.board_xy(screen_x, screen_y, entity_name)
-    local board_x = 1 + math.floor((screen_x - gameboard.offset.x) / gameboard.size.w)
-    local board_y = 1 + math.floor((screen_y - gameboard.offset.y) / gameboard.size.h)
+-- Returns the cell that contains the screen point x, y
+function gameboard.board_xy(screen_x, screen_y)
+    local board_x = 1 + math.floor((screen_x - gameboard.top_left.x) / gameboard.size.w)
+    local board_y = 1 + math.floor((screen_y - gameboard.top_left.y) / gameboard.size.h)
     return board_x, board_y
 end
 
-function gameboard.screen_xy(board_x, board_y, entity_name)
-    local screen_x = gameboard.offset.x + board_x * gameboard.size.w
-    local screen_y = gameboard.offset.y + board_y * gameboard.size.h
-    if entity_name == "beetle" then
-        screen_x = screen_x - 2
-        screen_y = screen_y - 2
-    elseif entity_name == "turnstile" then
-        screen_x = screen_x - 2
-        screen_y = screen_y - 2
-    elseif entity_name == "ladybug" then
-        screen_x = screen_x - 2
-        screen_y = screen_y - 2
-    elseif entity_name ~= "dot" then
-        screen_x = screen_x + 2
-        screen_y = screen_y + 2
-    end
+-- Returns the screen point at the center of a cell. Sprites are anchored on
+-- their center, so this is where any of them goes to sit on that cell.
+function gameboard.cell_center(board_x, board_y)
+    local screen_x = gameboard.top_left.x + (board_x - 1) * gameboard.size.w + gameboard.size.w / 2
+    local screen_y = gameboard.top_left.y + (board_y - 1) * gameboard.size.h + gameboard.size.h / 2
     return screen_x, screen_y
+end
+
+-- Returns the screen point of turnstile (x, y), the pivot shared by the
+-- corners of cells (x, y), (x + 1, y), (x, y + 1) and (x + 1, y + 1)
+function gameboard.gate_center(x, y)
+    local screen_x, screen_y = gameboard.cell_center(x, y)
+    return screen_x + gameboard.size.w / 2, screen_y + gameboard.size.h / 2
 end
 
 -- Returns a table with every character of the string turned off, as in
@@ -341,9 +331,7 @@ function gameboard.draw_credits(credits)
 end
 
 function gameboard.random_monster_walk_from(board_start_x, board_start_y)
-    local xy = function(board_x, board_y)
-        return gameboard.screen_xy(board_x, board_y, "beetle")
-    end
+    local xy = gameboard.cell_center
 
     local monster_walk = {
         {nil, "↑", 1, {xy(board_start_x, board_start_y - 5)}},
@@ -364,9 +352,7 @@ function gameboard.random_monster_walk_from(board_start_x, board_start_y)
 end
 
 function gameboard.random_walk_from(board_start_x, board_start_y)
-    local xy = function(board_x, board_y)
-        return gameboard.screen_xy(board_x, board_y, "ladybug")
-    end
+    local xy = gameboard.cell_center
 
     local walk = {
         {0.5, "🛑"},

@@ -53,31 +53,31 @@ function st.initialize_sprites()
     st.playfield = em.init("playfield")
 
     st.skulls = {
-        st.skull(92, 117),
-        st.skull(108, 117),
+        st.skull(88, 113),
+        st.skull(104, 113),
     }
 
     st.letters = {
-        st.letter("t", 84, 141),
-        st.letter("p", 100, 141),
-        st.letter("e", 116, 141),
+        st.letter("t", 80, 137),
+        st.letter("p", 96, 137),
+        st.letter("e", 112, 137),
     }
 
     st.hearts = {
-        st.heart(84, 165),
-        st.heart(100, 165),
-        st.heart(116, 165),
+        st.heart(80, 161),
+        st.heart(96, 161),
+        st.heart(112, 161),
     }
 
     st.cucumbers = {
-        em.init("cucumber", 64 ,65),
-        em.init("cucumber", 8,224)
+        em.init("cucumber", 72, 73),
+        em.init("cucumber", 16, 232)
     }
 
     st.lives = {
-        st.player_life(7, 208),
-        st.player_life(23, 208),
-        st.player_life(39, 208)
+        st.player_life(15, 216),
+        st.player_life(31, 216),
+        st.player_life(47, 216)
     }
 end
 

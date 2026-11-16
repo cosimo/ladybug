@@ -26,6 +26,8 @@ local function new_entity(name, kind, x, y)
         x = x or definition.x or 0,
         y = y or definition.y or 0,
         angle = definition.angle or 0,
+        origin_x = definition.origin[1],
+        origin_y = definition.origin[2],
         delete = false,
     }
 
@@ -39,7 +41,6 @@ local function new_entity(name, kind, x, y)
     local template = animation.newtemplate(sheet, definition.frame_width, definition.frame_seconds, 0, loop)
 
     entity.anim = animation.newanim(template)
-    entity.origin_x, entity.origin_y = definition.origin[1], definition.origin[2]
 
     return entity
 end
@@ -65,11 +66,26 @@ end
 
 function em.draw_entity(entity)
     if entity.image then
-        love.graphics.draw(entity.image, entity.x, entity.y, entity.angle)
+        love.graphics.draw(entity.image, entity.x, entity.y, entity.angle, 1, 1, entity.origin_x, entity.origin_y)
         return
     end
 
     animation.animdraw(entity.anim, entity.x, entity.y, entity.angle, 1, 1, entity.origin_x, entity.origin_y)
+end
+
+-- Returns the point in the middle of the entity's sprite. It can be half a
+-- pixel off x, y for sprites with an odd size: the middle of a 3 pixel dot
+-- drawn with its origin at 1, 1 is x + 0.5.
+function em.center(entity)
+    local width, height
+
+    if entity.image then
+        width, height = entity.image:getDimensions()
+    else
+        width, height = entity.anim.temp.width, entity.anim.temp.height
+    end
+
+    return entity.x - entity.origin_x + width / 2, entity.y - entity.origin_y + height / 2
 end
 
 -- No pause check needed here, lib/gamestate.lua doesn't call the state
