@@ -1,5 +1,13 @@
+local maze = require "lib.maze"
+
 local pi = math.pi
 local pi2 = pi / 2
+
+-- The ladybug moves on lanes every 16 pixels from 8, both ways, and snaps
+-- onto a lane from up to 4 pixels away
+local FIRST_LANE = 8
+local LANE_SPACING = 16
+local SNAP_TOLERANCE = 4
 
 local st = {}
 
@@ -43,50 +51,33 @@ function st.resume()
     st.enter()
 end
 
-function st.on_grid_x(obj)
-    local grid_offset = obj.y % 16
-    local snap_point = 8
-    local tolerance = 4
-    local can_snap = grid_offset >= (snap_point - tolerance)
-        and grid_offset <= (snap_point + tolerance)
-
-    if can_snap then
-        obj.y = obj.y - (grid_offset - snap_point)
-        return true
-    else
-        return false
-    end
-end
-
-function st.on_grid_y(obj)
-    local grid_offset = obj.x % 16
-    local snap_point = 8
-    local tolerance = 4
-    local can_snap = grid_offset >= snap_point - tolerance
-        and grid_offset <= snap_point + tolerance
-
-    if can_snap then
-        obj.x = obj.x - (grid_offset - snap_point)
-        return true
-    else
-        return false
-    end
-end
-
 function st.process_input()
     if st.input:get("move") then
         local step = 1
         local ladybug = st.ladybug
-        if st.input:down("right") and st.on_grid_x(ladybug) then
+
+        -- Moving sideways needs the ladybug on a horizontal lane, moving up
+        -- or down on a vertical one
+        local lane_y = maze.snap_to_lane(ladybug.y, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE)
+        local lane_x = maze.snap_to_lane(ladybug.x, FIRST_LANE, LANE_SPACING, SNAP_TOLERANCE)
+
+        if st.input:down("right") and lane_y then
+            ladybug.y = lane_y
             ladybug.x = ladybug.x + step
             ladybug.angle = 0
-        elseif st.input:down("left") and st.on_grid_x(ladybug) then
+
+        elseif st.input:down("left") and lane_y then
+            ladybug.y = lane_y
             ladybug.x = ladybug.x - step
             ladybug.angle = -pi
-        elseif st.input:down("down") and st.on_grid_y(ladybug) then
+
+        elseif st.input:down("down") and lane_x then
+            ladybug.x = lane_x
             ladybug.y = ladybug.y + step
             ladybug.angle = pi2
-        elseif st.input:down("up") and st.on_grid_y(ladybug) then
+
+        elseif st.input:down("up") and lane_x then
+            ladybug.x = lane_x
             ladybug.y = ladybug.y - step
             ladybug.angle = -pi2
         end
@@ -111,7 +102,6 @@ function st.check_boundaries(obj)
 end
 
 function st.update(self, dt)
-    lovebird.update()
     self.waited = self.waited + dt
     if self.waited > 5.0 then
         gs.switch(self.next_state)

@@ -36,7 +36,19 @@ function pathfinder.restart(path)
     path.current_step = 1
 end
 
+-- A path whose entity was deleted would keep moving an entity nobody draws,
+-- and keep firing its step callbacks every time it loops
+function pathfinder.drop_deleted()
+    for i = #pathfinder.paths, 1, -1 do
+        if pathfinder.paths[i].entity.delete then
+            table.remove(pathfinder.paths, i)
+        end
+    end
+end
+
 function pathfinder.update(dt)
+    pathfinder.drop_deleted()
+
     for i, path in ipairs(pathfinder.paths) do
         path.time = path.time + dt
         local step = path.steps[path.current_step]

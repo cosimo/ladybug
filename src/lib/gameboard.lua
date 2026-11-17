@@ -1,11 +1,20 @@
+local maze = require "lib.maze"
+local LEVEL1_MAZE = require "levels.level1"
+
 local gameboard = {
     size = {x=11, y=11, w=16, h=16},
-    offset = {x=2, y=19},
 
+    -- Screen position of the top left corner of cell (1, 1)
+    top_left = {x=8, y=25},
+
+    -- grid[x][y] is what sits on each cell, one of the constants below.
+    -- entities[x][y] is the sprite drawn for it, nil for an empty cell.
     grid = {},
     entities = {},
 
-    gates = {},
+    -- Walls and turnstiles of the current level, from lib/maze.lua, and
+    -- the turnstile sprites, gate_entities[x][y] for turnstile (x, y)
+    maze = nil,
     gate_entities = {},
 
     player_score = 0,
@@ -14,8 +23,6 @@ local gameboard = {
     DOT = 1,
     SKULL = 2,
     BONUS = 3,
-    TURNSTILE_H = 4,
-    TURNSTILE_V = 5,
 
     LETTER_S = 10,
     LETTER_P = 11,
@@ -31,34 +38,33 @@ local gameboard = {
     BEETLE = 20,
 }
 
+-- Empties a table in place. pairs() rather than the # operator, because
+-- gate_entities has holes: there are no turnstiles in columns 5 and 6.
+local function empty_table(t)
+    for key in pairs(t) do
+        t[key] = nil
+    end
+end
+
 function gameboard.clear()
-    while #gameboard.grid ~= 0 do
-        rawset(gameboard.grid, #gameboard.grid, nil)
-    end
-    while #gameboard.entities ~= 0 do
-        rawset(gameboard.entities, #gameboard.entities, nil)
-    end
-    while #gameboard.gates ~= 0 do
-        rawset(gameboard.gates, #gameboard.gates, nil)
-    end
+    empty_table(gameboard.grid)
+    empty_table(gameboard.entities)
+    empty_table(gameboard.gate_entities)
+    gameboard.maze = nil
+    gameboard.player_score = 0
 end
 
 --noinspection LuaOverlyLongMethod
 function gameboard.random_initialize()
+    gameboard.clear()
+
     local grid = gameboard.grid
-    local gates = gameboard.gates
+    gameboard.maze = maze.parse(LEVEL1_MAZE)
 
     for x = 1, gameboard.size.x do
         grid[x] = {}
         for y = 1, gameboard.size.y do
             grid[x][y] = gameboard.DOT
-        end
-    end
-
-    for x = 1, gameboard.size.x - 1 do
-        gates[x] = {}
-        for y = 1, gameboard.size.y - 1 do
-            gates[x][y] = nil
         end
     end
 
@@ -81,35 +87,6 @@ function gameboard.random_initialize()
     grid[6][9] = gameboard.EMPTY
     grid[6][10] = gameboard.EMPTY
     grid[6][11] = gameboard.EMPTY
-
-    -- Turnstile states
-    gates[2][1] = gameboard.TURNSTILE_H
-    gates[9][1] = gameboard.TURNSTILE_H
-
-    gates[4][2] = gameboard.TURNSTILE_V
-    gates[7][2] = gameboard.TURNSTILE_V
-
-    gates[1][3] = gameboard.TURNSTILE_V
-    gates[3][3] = gameboard.TURNSTILE_H
-    gates[8][3] = gameboard.TURNSTILE_H
-    gates[10][3] = gameboard.TURNSTILE_V
-
-    gates[4][4] = gameboard.TURNSTILE_H
-    gates[7][4] = gameboard.TURNSTILE_H
-
-    gates[3][6] = gameboard.TURNSTILE_V
-    gates[8][6] = gameboard.TURNSTILE_V
-
-    gates[2][7] = gameboard.TURNSTILE_V
-    gates[4][7] = gameboard.TURNSTILE_V
-    gates[7][7] = gameboard.TURNSTILE_V
-    gates[9][7] = gameboard.TURNSTILE_V
-
-    gates[4][9] = gameboard.TURNSTILE_H
-    gates[7][9] = gameboard.TURNSTILE_H
-
-    gates[2][10] = gameboard.TURNSTILE_H
-    gates[9][10] = gameboard.TURNSTILE_H
 
     gameboard.render()
 end
@@ -142,26 +119,24 @@ function gameboard.render()
         end
     end
 
+    local turnstiles = gameboard.maze.turnstiles
+
     for x = 1, gameboard.size.x - 1 do
-        if gameboard.gates[x] == nil then
-            gameboard.gates[x] = {}
-        end
         for y = 1, gameboard.size.y - 1 do
-            local turnstile_direction = gameboard.gates[x][y]
-            if turnstile_direction ~= nil then
-                gameboard.place_turnstile(turnstile_direction, x, y)
+            local orientation = turnstiles[x][y]
+            if orientation ~= nil then
+                gameboard.place_turnstile(orientation, x, y)
             end
         end
     end
 end
 
-function gameboard.place_turnstile(direction, x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, "turnstile")
-    local ent = em.init("turnstile", screen_x, screen_y)
-    if direction == gameboard.TURNSTILE_V then
+-- Places the sprite of turnstile (x, y), "H" for horizontal or "V" for
+-- vertical
+function gameboard.place_turnstile(orientation, x, y)
+    local ent = em.init("turnstile", gameboard.gate_center(x, y))
+    if orientation == "V" then
         ent.angle = -math.pi/2
-        ent.y = ent.y + 16
     end
     ent.anim.temp.speed = 0
     if gameboard.gate_entities[x] == nil then
@@ -172,88 +147,100 @@ function gameboard.place_turnstile(direction, x, y)
 end
 
 function gameboard.place_entity(entity_name, x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, entity_name)
-    gameboard.grid[x][y] = em.init(entity_name, screen_x, screen_y)
-    gameboard.grid[x][y].anim.temp.speed = 0
-    return gameboard.grid[x][y]
+    local entity = em.init(entity_name, gameboard.cell_center(x, y))
+    entity.anim.temp.speed = 0
+    return entity
 end
 
+-- Removes whatever sits on a cell, and its sprite, leaving the cell empty
+function gameboard.clear_cell(x, y)
+    local entity = gameboard.entities[x][y]
+    if entity ~= nil then
+        entity.delete = true
+    end
+
+    gameboard.entities[x][y] = nil
+    gameboard.grid[x][y] = gameboard.EMPTY
+end
+
+-- Releases the enemy waiting in the center cell. The board forgets about
+-- it, from now on the enemy moves on its own path.
 function gameboard.place_enemy(enemy)
     local x = 6
     local y = 6
 
-    local static_enemy = gameboard.grid[x][y]
-    if static_enemy ~= nil then
-        static_enemy.delete = true
-    end
+    gameboard.clear_cell(x, y)
 
-    local enemy_entity = em.init(enemy, gameboard.screen_xy(x, y, enemy))
-    gameboard.grid[x][y] = enemy_entity
-
-    return enemy_entity
+    return em.init(enemy, gameboard.cell_center(x, y))
 end
 
 function gameboard.place_bonus(x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, "heart")
-    gameboard.grid[x][y] = em.init("heart", screen_x, screen_y)
-    gameboard.grid[x][y].anim.temp.speed = 0
-    gameboard.grid[x][y].anim.frame = 2
+    local heart = em.init("heart", gameboard.cell_center(x, y))
+    heart.anim.temp.speed = 0
+    heart.anim.frame = 2
+    return heart
 end
 
 function gameboard.place_letter(letter, x, y)
-    local screen_x, screen_y
-    screen_x, screen_y = gameboard.screen_xy(x, y, "letter")
-    gameboard.grid[x][y] = em.init_with_type("letter", letter, screen_x, screen_y)
-    gameboard.grid[x][y].anim.temp.speed = 0
-    gameboard.grid[x][y].anim.frame = 2
+    local letter_entity = em.init_with_type("letter", letter, gameboard.cell_center(x, y))
+    letter_entity.anim.temp.speed = 0
+    letter_entity.anim.frame = 2
+    return letter_entity
 end
 
 function gameboard.bonus(x, y)
-    gameboard.place_bonus(x, y)
+    return gameboard.place_bonus(x, y)
 end
 
 function gameboard.letter(letter, x, y)
-    gameboard.place_letter(letter, x, y)
+    return gameboard.place_letter(letter, x, y)
 end
 
 function gameboard.dot(x, y)
-    gameboard.place_entity("dot", x, y)
+    return gameboard.place_entity("dot", x, y)
 end
 
 function gameboard.skull(x, y)
-    gameboard.place_entity("skull", x, y)
+    return gameboard.place_entity("skull", x, y)
 end
 
 function gameboard.enemy(entity_name, x, y)
     local enemy = gameboard.place_entity(entity_name, x, y)
     enemy.angle = -math.pi/2
+    return enemy
 end
 
-function gameboard.board_xy(screen_x, screen_y, entity_name)
-    local board_x = 1 + math.floor((screen_x - gameboard.offset.x) / gameboard.size.w)
-    local board_y = 1 + math.floor((screen_y - gameboard.offset.y) / gameboard.size.h)
+-- Returns the cell that contains the screen point x, y
+function gameboard.board_xy(screen_x, screen_y)
+    local board_x = 1 + math.floor((screen_x - gameboard.top_left.x) / gameboard.size.w)
+    local board_y = 1 + math.floor((screen_y - gameboard.top_left.y) / gameboard.size.h)
     return board_x, board_y
 end
 
-function gameboard.screen_xy(board_x, board_y, entity_name)
-    local screen_x = gameboard.offset.x + board_x * gameboard.size.w
-    local screen_y = gameboard.offset.y + board_y * gameboard.size.h
-    if entity_name == "beetle" then
-        screen_x = screen_x - 2
-        screen_y = screen_y - 2
-    elseif entity_name == "turnstile" then
-        screen_x = screen_x - 2
-        screen_y = screen_y - 2
-    elseif entity_name == "ladybug" then
-        screen_x = screen_x - 2
-        screen_y = screen_y - 2
-    elseif entity_name ~= "dot" then
-        screen_x = screen_x + 2
-        screen_y = screen_y + 2
-    end
+-- Returns the screen point at the center of a cell. Sprites are anchored on
+-- their center, so this is where any of them goes to sit on that cell.
+function gameboard.cell_center(board_x, board_y)
+    local screen_x = gameboard.top_left.x + (board_x - 1) * gameboard.size.w + gameboard.size.w / 2
+    local screen_y = gameboard.top_left.y + (board_y - 1) * gameboard.size.h + gameboard.size.h / 2
     return screen_x, screen_y
+end
+
+-- Returns the screen point of turnstile (x, y), the pivot shared by the
+-- corners of cells (x, y), (x + 1, y), (x, y + 1) and (x + 1, y + 1)
+function gameboard.gate_center(x, y)
+    local screen_x, screen_y = gameboard.cell_center(x, y)
+    return screen_x + gameboard.size.w / 2, screen_y + gameboard.size.h / 2
+end
+
+-- Returns a table with every character of the string turned off, as in
+-- all_unlit("EXTRA") -> {E = false, X = false, T = false, R = false, A = false}
+-- for the SPECIAL and EXTRA letters and the multipliers ("235") at the top
+function gameboard.all_unlit(characters)
+    local lit = {}
+    for character in characters:gmatch(".") do
+        lit[character] = false
+    end
+    return lit
 end
 
 function gameboard.draw_bonus_multipliers(bonus_lit)
@@ -324,9 +311,7 @@ function gameboard.draw_credits(credits)
 end
 
 function gameboard.random_monster_walk_from(board_start_x, board_start_y)
-    local xy = function(board_x, board_y)
-        return gameboard.screen_xy(board_x, board_y, "beetle")
-    end
+    local xy = gameboard.cell_center
 
     local monster_walk = {
         {nil, "↑", 1, {xy(board_start_x, board_start_y - 5)}},
@@ -347,9 +332,7 @@ function gameboard.random_monster_walk_from(board_start_x, board_start_y)
 end
 
 function gameboard.random_walk_from(board_start_x, board_start_y)
-    local xy = function(board_x, board_y)
-        return gameboard.screen_xy(board_x, board_y, "ladybug")
-    end
+    local xy = gameboard.cell_center
 
     local walk = {
         {0.5, "🛑"},

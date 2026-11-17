@@ -1,5 +1,8 @@
 local st = {}
 
+-- Cell where the ladybug starts, at the bottom center of the maze
+local START_BOARD_X, START_BOARD_Y = 6, 9
+
 function st.init()
     st.input = baton.new {
         controls = {
@@ -12,28 +15,9 @@ function st.init()
 end
 
 function st.initialize_state()
-    st.extra_lit = {
-        E = false,
-        X = false,
-        T = false,
-        R = false,
-        A = false,
-    }
-
-    st.special_lit = {
-        S = false,
-        P = false,
-        E = false,
-        C = false,
-        I = false,
-        A = false,
-        L = false,
-    }
-
-    st.bonus_lit = {}
-    st.bonus_lit["2"] = false
-    st.bonus_lit["3"] = false
-    st.bonus_lit["5"] = false
+    st.extra_lit = gameboard.all_unlit("EXTRA")
+    st.special_lit = gameboard.all_unlit("SPECIAL")
+    st.bonus_lit = gameboard.all_unlit("235")
 
     st.credits = 0
     st.waited = 0.0
@@ -43,6 +27,10 @@ function st.initialize_state()
     st.is_timer_started = false
     st.can_monsters_move = false
 
+    -- spawn_ladybug() only spawns while there is no ladybug yet
+    st.ladybug = nil
+    st.enemy = nil
+
     st.next_state = states.attractmode
 end
 
@@ -50,21 +38,22 @@ function st.initialize_sprites()
     st.playfield = em.init("playfield_level1")
 
     st.low_hanging_fruit = {
-        em.init("cucumber", 8, 224)
+        em.init("cucumber", 16, 232)
     }
 
     st.player_lives = {
-        st.player_life(7, 208),
-        st.player_life(23, 208),
-        st.player_life(39, 208)
+        st.player_life(15, 216),
+        st.player_life(31, 216),
+        st.player_life(47, 216)
     }
 
-    local start_x = 88
-    local start_y = 168
+    local start_x, start_y = gameboard.cell_center(START_BOARD_X, START_BOARD_Y)
     local life = 3
 
     -- Animation from the static ladybug life at the bottom
-    -- to a dynamic sprite that will start moving
+    -- to a dynamic sprite that will start moving. As in the arcade, the
+    -- life walks up into the maze until the start cell, and turns into
+    -- the ladybug there.
     st.player_lives[life].path = pathfinder.new_path(st.player_lives[life], {
         {0.5, "🛑"},
         {nil, "→", 1, {start_x}},
@@ -81,10 +70,10 @@ end
 function st.spawn_ladybug(life_number, x, y)
     if not st.ladybug then
         st.player_lives[life_number].delete = true
-        st.ladybug = em.init("ladybug", x + 8, y - 8)
+        st.ladybug = em.init("ladybug", x, y)
         st.ladybug.angle = -math.pi/2
         st.is_timer_started = true
-        st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(6, 9), collision.detect)
+        st.ladybug.path = pathfinder.new_path(st.ladybug, gameboard.random_walk_from(START_BOARD_X, START_BOARD_Y), collision.detect)
     end
 end
 
@@ -114,8 +103,6 @@ function st.process_input()
 end
 
 function st.update(self, dt)
-    lovebird.update()
-
     self.waited = self.waited + dt
 
     local points_by_time = {"800", "300", "100"}
@@ -131,11 +118,9 @@ function st.update(self, dt)
         timeblocks.update(dt)
     end
 
-    -- 12 seconds is how long it takes for the time blocks
-    -- to turn one full round from the start of the screen
-    if not self.can_monsters_move and
-            self.is_timer_started and
-            self.waited > 11.5 then
+    -- As in the arcade, the beetle leaves the center when the timer
+    -- completes its first lap
+    if not self.can_monsters_move and timeblocks.laps() >= 1 then
         st.enemy = gameboard.place_enemy("beetle")
         st.enemy.path = pathfinder.new_path(st.enemy,
             gameboard.random_monster_walk_from(6, 6),
