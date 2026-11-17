@@ -52,6 +52,10 @@ fi
 mv "$RUN_DIR/game/main.lua" "$RUN_DIR/game/game_main.lua"
 cp "$RECORDER_DIR/main.lua" "$RUN_DIR/game/main.lua"
 
+# No audio output, for frames only. Under WSLg a stuck PipeWire can hang
+# LÖVE before it even opens the window.
+export ALSOFT_DRIVERS="${ALSOFT_DRIVERS:-null}"
+
 cd "$RUN_DIR/game"
 RECORD_OUT="$RUN_DIR/out" love . > "$RUN_DIR/out/stdout.txt" 2>&1 || {
     echo "love exited with status $?, the last lines of its output:" >&2
