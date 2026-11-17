@@ -22,6 +22,10 @@ To work on a single screen, change the `gs.switch(states.diagnostics)` call at
 the end of `love.load()` in `src/main.lua`. `states/test.lua` is a pathfinder
 sandbox that is only reachable this way.
 
+Under WSLg, LÖVE sometimes hangs before opening its window, with PipeWire
+errors in the output. The game has no sound, so `ALSOFT_DRIVERS=null love src`
+works around it.
+
 ## Tests
 
     love tests              # all of them
@@ -31,7 +35,23 @@ sandbox that is only reachable this way.
 `src/`. Each `tests/test_<area>.lua` returns a table of `test_<what>`
 functions that fail by raising an error, usually from `assert()`. The exit
 status is 1 when any test fails. Only modules with no LÖVE calls at load time
-can be tested this way, like `lib/maze.lua` and `lib/gameboard.lua`.
+can be tested this way, like `lib/maze.lua`, `lib/fixedstep.lua` and
+`lib/gameboard.lua`.
+
+### Frame recorder
+
+    tools/frame-recorder/record.sh before HEAD    # or any git revision
+    tools/frame-recorder/record.sh after          # the working tree
+    python3 tools/frame-recorder/compare.py before after
+
+`record.sh` runs the game in a window at a fixed 1/60s per frame, and writes
+the md5 of each of 4200 frames (about 70s, the demo up to `playdemo2`) to
+`tools/frame-recorder/runs/<label>/`. Runs of the same code give the same
+hashes, so `compare.py` shows which frames a change affects, and none for a
+pure refactor. The `RECORD_*` settings in `tools/frame-recorder/main.lua`
+dump frames as PNG, press keys or run Lua at given frames, log a probe
+expression, and track accidental globals. The recorder replaces `love.run`,
+so it doesn't exercise the game's own loop.
 
 ## Architecture
 
@@ -44,8 +64,17 @@ can be tested this way, like `lib/maze.lua` and `lib/gameboard.lua`.
 other through these globals. The require order matters, `entityman` calls
 `deeper.init()` at load time and `deeper` uses `helpers`.
 
-`lib/maze.lua` is the exception: no globals and no LÖVE calls, required with
-`local maze = require "lib.maze"` where needed.
+`lib/maze.lua` and `lib/fixedstep.lua` are the exception: no globals and no
+LÖVE calls, required with `local maze = require "lib.maze"` where needed.
+
+### Game loop
+
+`love.run` in `src/main.lua` runs the updates at a fixed 1/60s step, like the
+arcade's logic runs once per 60Hz video frame, whatever the display refresh
+rate. `fixedstep.updates_due()` says how many updates are due for the time
+that passed. Everything per update (pathfinder speeds, per pixel collisions,
+counters) is effectively per 1/60s, and `dt` is always 1/60. WSLg ignores
+vsync, and the loop draws about 340 frames per second there.
 
 ### Screen
 
@@ -133,7 +162,7 @@ slots 3 and 4) or `🛑` (wait). A step ends when `end_time` passes, or when the
 entity reaches the stop coordinate. `end_time` counts seconds since the path
 started, not since the step started. Paths restart from the first step when
 they run out, and are dropped once their entity is deleted. `speed` is in
-pixels per frame, so movement assumes 60 frames per second.
+pixels per update, which the fixed step makes pixels per 1/60s.
 
 The optional move callback gets `(entity, x, y, prev_x, prev_y)` on every pixel
 of movement. `playdemo2` passes `collision.detect`, which eats a dot when the
@@ -153,8 +182,8 @@ sprite covers the blocks.
 Vendored and best left alone: `gamestate` (hump, with the pause change above),
 `baton` (input), `push` (scaling), `lovebird`, `inspect`, `deeper` (multi queue
 version of deep). `entityman`, `animation` and `helpers` are adapted from
-firekatana. `gameboard`, `maze`, `pathfinder`, `timeblocks` and `collision`
-are this project's own.
+firekatana. `gameboard`, `maze`, `fixedstep`, `pathfinder`, `timeblocks` and
+`collision` are this project's own.
 
 ## Reference material
 
