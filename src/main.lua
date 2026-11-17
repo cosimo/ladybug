@@ -1,3 +1,46 @@
+local fixedstep = require "lib.fixedstep"
+
+-- LÖVE's default love.run, except for the updates: they run at a fixed
+-- 1/60s step, as many as are due for the time that passed, instead of one
+-- update of any length per displayed frame. lib/fixedstep.lua says why.
+-- See: https://love2d.org/wiki/love.run
+function love.run()
+    love.load(love.arg.parseGameArguments(arg), arg)
+
+    -- The time love.load() took isn't game time
+    love.timer.step()
+    local pending_seconds = 0
+
+    return function()
+        love.event.pump()
+        for name, a, b, c, d, e, f in love.event.poll() do
+            if name == "quit" then
+                local is_quit_aborted = love.quit and love.quit()
+                if not is_quit_aborted then
+                    return a or 0
+                end
+            end
+            love.handlers[name](a, b, c, d, e, f)
+        end
+
+        local update_count
+        update_count, pending_seconds = fixedstep.updates_due(pending_seconds + love.timer.step())
+
+        for _ = 1, update_count do
+            love.update(fixedstep.UPDATE_SECONDS)
+        end
+
+        if love.graphics.isActive() then
+            love.graphics.origin()
+            love.graphics.clear(love.graphics.getBackgroundColor())
+            love.draw()
+            love.graphics.present()
+        end
+
+        love.timer.sleep(0.001)
+    end
+end
+
 function love.load()
     windowWidth, windowHeight = 192, 240
 
